@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import apiService from '../apiService';
 import { AuthContext } from '../Contexts/AuthContext';
 import AppStyles from '../AppStyles';
@@ -8,7 +8,6 @@ const LoginForm = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { setAuthToken } = useContext(AuthContext);
-  
 
   const handleLogin = async () => {
     try {

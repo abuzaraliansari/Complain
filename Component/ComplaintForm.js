@@ -1,0 +1,224 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Button, Alert, Image, ScrollView, PermissionsAndroid, Platform } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
+import DocumentPicker from 'react-native-document-picker';
+import { launchCamera } from 'react-native-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import AppStyles from '../AppStyles';
+import apiService from '../apiService';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+
+const ComplaintForm = ({ navigation }) => {
+  const [description, setDescription] = useState('');
+  const [attachmentDoc, setAttachmentDoc] = useState(null);
+  const [userImage, setUserImage] = useState(null);
+  const [location, setLocation] = useState(null);
+  const [error, setError] = useState(null);
+  const [userMobileNo, setUserMobileNo] = useState('');
+  const [emailID, setEmailID] = useState('');
+  const [complaintType, setComplaintType] = useState('');
+  const [complaintStatus, setComplaintStatus] = useState('Open');
+  const [ipAddress, setIpAddress] = useState('');
+
+  useEffect(() => {
+    fetchLocation();
+    fetchIpAddress();
+  }, []);
+
+  const fetchLocation = () => {
+    setError(null);
+    Geolocation.getCurrentPosition(
+      position => {
+        if (position.coords.accuracy <= 20) {
+          setLocation(position.coords);
+        } else {
+          setError('The location accuracy is insufficient. Please move to an open area.');
+        }
+      },
+      error => {
+        setError(error.message);
+      },
+      { enableHighAccuracy: true, timeout: 50000, maximumAge: 10000 }
+    );
+  };
+
+  const fetchIpAddress = async () => {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      setIpAddress(data.ip);
+    } catch (error) {
+      console.error('Error fetching IP address:', error);
+    }
+  };
+
+  const requestCameraPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: 'Camera Permission',
+            message: 'This app needs access to your camera to take photos.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    } else {
+      const result = await request(PERMISSIONS.IOS.CAMERA);
+      return result === RESULTS.GRANTED;
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) {
+      Alert.alert('Permission Denied', 'Camera permission is required to take photos.');
+      return;
+    }
+
+    launchCamera(
+      { mediaType: 'photo', saveToPhotos: true },
+      async (response) => {
+        if (response.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response.errorCode) {
+          console.log('Camera error:', response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          const { uri, fileName } = response.assets[0];
+          setUserImage({ uri, fileName });
+        }
+      }
+    );
+  };
+
+  const handleDocumentPick = async () => {
+    try {
+      const result = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.images, DocumentPicker.types.pdf],
+      });
+      if (result) {
+        const { name: documentName, uri: documentUri } = result;
+        setAttachmentDoc({ documentName, documentUri });
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        Alert.alert('Cancelled', 'Document selection was cancelled.');
+      } else {
+        Alert.alert('Error', 'Document selection failed.');
+      }
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!emailID.endsWith('@gmail.com')) {
+      Alert.alert('Error', 'Email must end with @gmail.com');
+      return;
+    }
+
+    const data = {
+      description,
+      attachmentDoc: attachmentDoc ? attachmentDoc.documentName : null,
+      userImage: userImage ? userImage.fileName : null,
+      location: location ? `${location.latitude},${location.longitude}` : null,
+      longitude: location ? location.longitude : null,
+      latitude: location ? location.latitude : null,
+      userMobileNo,
+      emailID,
+      complaintType,
+      complaintStatus,
+      ipAddress,
+    };
+
+    try {
+      await apiService.submitComplaint(data);
+      Alert.alert('Success', 'Complaint submitted successfully');
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('Error submitting complaint:', error);
+      Alert.alert('Error', 'Failed to submit complaint');
+    }
+  };
+
+  return (
+    <ScrollView contentContainerStyle={AppStyles.scrollContainer}>
+      <View style={AppStyles.container}>
+        <Text style={AppStyles.title}>Submit Complaint</Text>
+        <Text style={AppStyles.label}>Complaint Type</Text>
+        <Picker
+          selectedValue={complaintType}
+          style={AppStyles.picker}
+          onValueChange={(itemValue) => setComplaintType(itemValue)}
+        >
+          <Picker.Item label="Select Complaint Type" value="" />
+          <Picker.Item label="Type 1" value="type1" />
+          <Picker.Item label="Type 2" value="type2" />
+          <Picker.Item label="Type 3" value="type3" />
+        </Picker>
+        <Text style={AppStyles.label}>Description</Text>
+        <TextInput
+          style={AppStyles.input}
+          placeholder="Description"
+          value={description}
+          onChangeText={setDescription}
+        />
+        <Text style={AppStyles.label}>Mobile No</Text>
+        <TextInput
+          style={AppStyles.input}
+          placeholder="Mobile No"
+          value={userMobileNo}
+          onChangeText={setUserMobileNo}
+        />
+        <Text style={AppStyles.label}>Email ID</Text>
+        <TextInput
+          style={AppStyles.input}
+          placeholder="Email ID"
+          value={emailID}
+          onChangeText={setEmailID}
+        />
+        <Text style={AppStyles.label}>Location</Text>
+        <TextInput
+          style={AppStyles.input}
+          placeholder="Location"
+          value={location ? `${location.latitude}, ${location.longitude}` : ''}
+          editable={false}
+        />
+        <Button title="Refresh Location" onPress={fetchLocation} />
+        <Text style={AppStyles.label}>Document</Text>
+        <TouchableOpacity style={AppStyles.button} onPress={handleDocumentPick}>
+          <Text style={AppStyles.buttonText}>
+            {attachmentDoc ? 'Change Document' : 'Upload Document'}
+          </Text>
+        </TouchableOpacity>
+        {attachmentDoc && (
+          <View style={AppStyles.documentContainer}>
+            <Icon name="insert-drive-file" size={30} color="#000" />
+            <Text style={AppStyles.documentText}>{attachmentDoc.documentName}</Text>
+          </View>
+        )}
+        <Text style={AppStyles.label}>Photo</Text>
+        <TouchableOpacity style={AppStyles.button} onPress={handleTakePhoto}>
+          <Text style={AppStyles.buttonText}>
+            {userImage ? 'Change Photo' : 'Take Photo'}
+          </Text>
+        </TouchableOpacity>
+        {userImage && (
+          <Image source={{ uri: userImage.uri }} style={AppStyles.imagePreview} />
+        )}
+        <TouchableOpacity style={AppStyles.button} onPress={handleSubmit}>
+          <Text style={AppStyles.buttonText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+};
+
+export default ComplaintForm;

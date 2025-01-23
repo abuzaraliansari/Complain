@@ -6,7 +6,11 @@ import { FormDataProvider } from './Contexts/FormDataContext';
 import LoginScreen from './Screens/LoginScreen';
 import SignupScreen from './Screens/SignupScreen';
 import HomeScreen from './Screens/HomeScreen';
+
 import FormScreen from './Screens/FormScreen';
+import ComplaintForm from './Component/ComplaintForm';
+
+
 
 const Stack = createStackNavigator();
 
@@ -20,6 +24,8 @@ const App = () => {
             <Stack.Screen name="Signup" component={SignupScreen} />
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Form" component={FormScreen} />
+            <Stack.Screen name="Complain" component={ComplaintForm} />
+
           </Stack.Navigator>
         </NavigationContainer>
       </FormDataProvider>

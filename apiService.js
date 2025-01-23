@@ -20,6 +20,14 @@ const apiService = {
       throw error;
     }
   },
+  submitComplaint: async (data) => {
+    try {
+    const response = await axios.post(`${API_URL}/complaints`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+  },
 };
 
 export default apiService;

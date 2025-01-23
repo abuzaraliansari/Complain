@@ -2,62 +2,55 @@ import { StyleSheet } from 'react-native';
 
 const AppStyles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 20,
     backgroundColor: '#f0f4f7',
-    marginBottom: 15,
+    justifyContent: 'center',
   },
-  heading: {
-    fontSize: 35,
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 30,
     fontWeight: 'bold',
+    color: '#333',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#333',
   },
   label: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 8,
     color: '#000',
   },
   input: {
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 15,
+    borderRadius: 8,
     padding: 10,
-    fontSize: 20,
+    fontSize: 16,
     backgroundColor: '#fff',
     marginBottom: 15,
     color: '#000',
   },
+  picker: {
+    height: 50,
+    width: '100%',
+    marginBottom: 15,
+  },
   button: {
-    backgroundColor: '#1E90FF',
+    backgroundColor: '#4CAF50',
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-  },
-  message: {
-    textAlign: 'center',
-    marginTop: 15,
-    fontSize: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    textAlign: 'center',
-    marginVertical: 10,
-    color: '#000',
   },
   text: {
     fontSize: 16,
@@ -66,7 +59,24 @@ const AppStyles = StyleSheet.create({
     marginVertical: 5,
     lineHeight: 22,
   },
-  // New styles for LoginComponent
+  imagePreview: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 8,
+    marginTop: 10,
+    alignSelf: 'center',
+  },
+  documentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  documentText: {
+    fontSize: 16,
+    color: '#34495e',
+    marginLeft: 10,
+  },
   loginContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -87,10 +97,10 @@ const AppStyles = StyleSheet.create({
   loginInput: {
     height: 50,
     borderColor: '#ddd',
-    borderWidth: 3,
+    borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 15,
-    fontSize: 20,
+    fontSize: 16,
     marginBottom: 15,
     backgroundColor: '#fff',
     width: '80%',
@@ -101,7 +111,7 @@ const AppStyles = StyleSheet.create({
   loginButton: {
     backgroundColor: '#4CAF50',
     paddingVertical: 10,
-    borderRadius: 15,
+    borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
     padding: 10,
@@ -109,8 +119,15 @@ const AppStyles = StyleSheet.create({
   },
   loginButtonText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
+  },
+  photoText: {
+    fontSize: 16,
+    color: '#34495e',
+    textAlign: 'center',
+    marginVertical: 5,
+    lineHeight: 22,
   },
 });
 
