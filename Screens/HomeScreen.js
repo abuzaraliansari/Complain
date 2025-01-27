@@ -5,7 +5,8 @@ import AppStyles from '../AppStyles';
 
 const HomeScreen = ({ navigation }) => {
   const { authToken, setAuthToken } = useContext(AuthContext);
-
+  const { userDetails, setUserDetails } = useContext(AuthContext);
+console.log(userDetails);
   const handleLogout = () => {
     setAuthToken(null);
     navigation.navigate('Login');
@@ -16,16 +17,16 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleComplainStatus = () => {
-    navigation.navigate('ComplainStatus');
+    navigation.navigate('ComplaintDetails');
   };
 
   const handleComplainReply = () => {
-    navigation.navigate('ComplainReply');
+    navigation.navigate('ComplaintReplyDetails');
   };
 
   return (
     <View style={AppStyles.container}>
-      <Text style={AppStyles.title}>Welcome </Text>
+      <Text style={AppStyles.title}>Welcome {userDetails.username}</Text>
       <TouchableOpacity style={AppStyles.button} onPress={handleComplain}>
         <Text style={AppStyles.buttonText}>Complain</Text>
       </TouchableOpacity>

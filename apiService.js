@@ -22,11 +22,35 @@ const apiService = {
   },
   submitComplaint: async (data) => {
     try {
-    const response = await axios.post(`${API_URL}/complaints`, data);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+      const response = await axios.post(`${API_URL}/auth/complaints`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getComplaints: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/complain`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  submitComplaintReply: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/complaintsreply`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getComplaintReplies: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/complaintsreplies`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 

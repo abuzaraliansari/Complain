@@ -9,7 +9,9 @@ import HomeScreen from './Screens/HomeScreen';
 
 import FormScreen from './Screens/FormScreen';
 import ComplaintForm from './Component/ComplaintForm';
-
+import ComplaintDetails from './Component/ComplaintDetails';
+import ComplainReply from './Component/ComplainReply';
+import ComplaintReplyDetails from './Component/ComplaintReplyDetails';
 
 
 const Stack = createStackNavigator();
@@ -25,7 +27,10 @@ const App = () => {
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Form" component={FormScreen} />
             <Stack.Screen name="Complain" component={ComplaintForm} />
-
+            <Stack.Screen name="ComplaintDetails" component={ComplaintDetails} />
+            <Stack.Screen name="ComplainReply" component={ComplainReply} />
+            <Stack.Screen name="ComplaintReplyDetails" component={ComplaintReplyDetails} />
+     
           </Stack.Navigator>
         </NavigationContainer>
       </FormDataProvider>

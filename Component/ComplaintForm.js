@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Button, Alert, Image, ScrollView, PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera } from 'react-native-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppStyles from '../AppStyles';
 import apiService from '../apiService';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { AuthContext } from '../Contexts/AuthContext';
 
 const ComplaintForm = ({ navigation }) => {
   const [description, setDescription] = useState('');
@@ -16,11 +16,11 @@ const ComplaintForm = ({ navigation }) => {
   const [userImage, setUserImage] = useState(null);
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
-  const [userMobileNo, setUserMobileNo] = useState('');
-  const [emailID, setEmailID] = useState('');
   const [complaintType, setComplaintType] = useState('');
   const [complaintStatus, setComplaintStatus] = useState('Open');
   const [ipAddress, setIpAddress] = useState('');
+
+  const { userDetails } = useContext(AuthContext);
 
   useEffect(() => {
     fetchLocation();
@@ -119,21 +119,23 @@ const ComplaintForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (!emailID.endsWith('@gmail.com')) {
+    if (!userDetails.emailID.endsWith('@gmail.com')) {
       Alert.alert('Error', 'Email must end with @gmail.com');
       return;
     }
+    const formattedAttachmentDoc = attachmentDoc ? `${userDetails.username}_${userDetails.mobileno}_${attachmentDoc.documentName}` : null;
+    const formattedUserImage = userImage ? `${userDetails.username}_${userDetails.mobileno}_${userImage.fileName}` : null;
+
 
     const data = {
       description,
-      attachmentDoc: attachmentDoc ? attachmentDoc.documentName : null,
-      userImage: userImage ? userImage.fileName : null,
+      attachmentDoc: formattedAttachmentDoc,
+      userImage: formattedUserImage,
       location: location ? `${location.latitude},${location.longitude}` : null,
-      longitude: location ? location.longitude : null,
-      latitude: location ? location.latitude : null,
-      userMobileNo,
-      emailID,
-      complaintType,
+      createdBy: userDetails.username,
+      createdDate: new Date(),
+      mobileno: userDetails.mobileno,
+      emailID: userDetails.emailID,
       complaintStatus,
       ipAddress,
     };
@@ -174,15 +176,15 @@ const ComplaintForm = ({ navigation }) => {
         <TextInput
           style={AppStyles.input}
           placeholder="Mobile No"
-          value={userMobileNo}
-          onChangeText={setUserMobileNo}
+          value={userDetails.mobileno}
+          editable={false}
         />
         <Text style={AppStyles.label}>Email ID</Text>
         <TextInput
           style={AppStyles.input}
           placeholder="Email ID"
-          value={emailID}
-          onChangeText={setEmailID}
+          value={userDetails.emailID}
+          editable={false}
         />
         <Text style={AppStyles.label}>Location</Text>
         <TextInput
@@ -213,6 +215,12 @@ const ComplaintForm = ({ navigation }) => {
         {userImage && (
           <Image source={{ uri: userImage.uri }} style={AppStyles.imagePreview} />
         )}
+        <Text style={AppStyles.label}>Complaint Status</Text>
+        <TextInput
+          style={AppStyles.input}
+          value={complaintStatus}
+          editable={false}
+        />
         <TouchableOpacity style={AppStyles.button} onPress={handleSubmit}>
           <Text style={AppStyles.buttonText}>Submit</Text>
         </TouchableOpacity>

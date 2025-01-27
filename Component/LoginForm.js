@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import apiService from '../apiService';
 import { AuthContext } from '../Contexts/AuthContext';
 import AppStyles from '../AppStyles';
@@ -7,16 +7,35 @@ import AppStyles from '../AppStyles';
 const LoginForm = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { setAuthToken } = useContext(AuthContext);
+  const { setAuthToken, setUserDetails } = useContext(AuthContext);
 
   const handleLogin = async () => {
     try {
       const data = { username, password };
       const response = await apiService.login(data);
-      setAuthToken(response.token);
-      navigation.navigate('Home');
+      console.log('data', data);
+      if (response.success) {
+        console.log('response', response);
+        setAuthToken(response.token);
+        setUserDetails({
+          username: response.user.username,
+          mobileno: response.user.mobileno,
+          emailID: response.user.emailID
+        });
+        console.log(response);
+        console.log(username);
+        console.log(password);
+        console.log(response.token);
+        console.log(response.user.username);
+        console.log(response.user.mobileno);
+        console.log(response.user.emailID);
+        navigation.navigate('Home');
+      } else {
+        Alert.alert('Error', response.message);
+      }
     } catch (error) {
       console.error(error);
+      Alert.alert('Error', 'Failed to login');
     }
   };
 
