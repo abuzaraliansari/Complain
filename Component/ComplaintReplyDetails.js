@@ -7,6 +7,7 @@ const ComplaintReplyDetails = () => {
   const [complaintNo, setComplaintNo] = useState('');
   const [replies, setReplies] = useState([]);
   const [replyDescription, setReplyDescription] = useState('');
+  const [ipAddress, setIpAddress] = useState('');
 
   const fetchReplies = async () => {
     try {
@@ -18,12 +19,26 @@ const ComplaintReplyDetails = () => {
     }
   };
 
+  const fetchIpAddress = async () => {
+    try {
+      console.log('Fetching IP address...');
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      console.log('IP address fetched:', data.ip);
+      setIpAddress(data.ip);
+    } catch (error) {
+      console.error('Error fetching IP address:', error);
+    }
+  };
+
   const handleAddReply = async () => {
+    await fetchIpAddress(); 
+    console.log('Adding reply with IP address:', ipAddress);
     const data = {
       Complaintno: complaintNo,
       ReplySno: replies.length + 1, // Incremental ReplySno
       ReplyDescription: replyDescription,
-      IPAddress: '', // Fetch IP address if needed
+      IPAddress: ipAddress, // Use fetched IP address
     };
 
     try {

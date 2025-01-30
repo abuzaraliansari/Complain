@@ -46,8 +46,10 @@ const ComplaintForm = ({ navigation }) => {
 
   const fetchIpAddress = async () => {
     try {
+      console.log('Fetching IP address...');
       const response = await fetch('https://api.ipify.org?format=json');
       const data = await response.json();
+      console.log('IP address fetched:', data.ip);
       setIpAddress(data.ip);
     } catch (error) {
       console.error('Error fetching IP address:', error);

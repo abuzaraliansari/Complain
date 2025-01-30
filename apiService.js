@@ -6,7 +6,7 @@ const API_URL = Config.API_URL;
 const apiService = {
   login: async (data) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, data);
+      const response = await axios.post(`${API_URL}/auth/loginC`, data);
       return response.data;
     } catch (error) {
       throw error;
