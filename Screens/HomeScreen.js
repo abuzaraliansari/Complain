@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../Contexts/AuthContext';
 import AppStyles from '../AppStyles';
@@ -6,7 +6,13 @@ import AppStyles from '../AppStyles';
 const HomeScreen = ({ navigation }) => {
   const { authToken, setAuthToken } = useContext(AuthContext);
   const { userDetails, setUserDetails } = useContext(AuthContext);
-console.log(userDetails);
+
+  useEffect(() => {
+    if (userDetails) {
+      console.log('userDetails.isAdmin:', userDetails.isAdmin);
+    }
+  }, [userDetails]);
+
   const handleLogout = () => {
     setAuthToken(null);
     navigation.navigate('Login');
@@ -26,7 +32,7 @@ console.log(userDetails);
 
   return (
     <View style={AppStyles.container}>
-      <Text style={AppStyles.title}>Welcome {userDetails.username}</Text>
+      <Text style={AppStyles.title}>Welcome {userDetails.isAdmin ? 'Admin' : 'User'}  {userDetails.username}</Text>
       <TouchableOpacity style={AppStyles.button} onPress={handleComplain}>
         <Text style={AppStyles.buttonText}>Complain</Text>
       </TouchableOpacity>

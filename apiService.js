@@ -41,6 +41,7 @@ const apiService = {
       const response = await axios.post(`${API_URL}/auth/complaintsreply`, data);
       return response.data;
     } catch (error) {
+      console.error('Error in submitComplaintReply:', error.response ? error.response.data : error.message);
       throw error;
     }
   },
@@ -52,6 +53,15 @@ const apiService = {
       throw error;
     }
   },
+
+checkMobileNumber: async (mobileNumber) => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/checkMobile`, { mobileNumber });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+},
 };
 
 export default apiService;

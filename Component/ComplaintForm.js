@@ -121,7 +121,7 @@ const ComplaintForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (!userDetails.emailID.endsWith('@gmail.com')) {
+    if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
       Alert.alert('Error', 'Email must end with @gmail.com');
       return;
     }

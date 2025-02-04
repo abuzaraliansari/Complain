@@ -20,7 +20,8 @@ const LoginForm = ({ navigation }) => {
         setUserDetails({
           username: response.user.username,
           mobileno: response.user.mobileno,
-          emailID: response.user.emailID
+          emailID: response.user.emailID,
+          isAdmin: response.user.isAdmin
         });
         console.log(response);
         console.log(username);
@@ -29,6 +30,7 @@ const LoginForm = ({ navigation }) => {
         console.log(response.user.username);
         console.log(response.user.mobileno);
         console.log(response.user.emailID);
+        console.log(response.user.isAdmin);
         navigation.navigate('Home');
       } else {
         Alert.alert('Error', response.message);

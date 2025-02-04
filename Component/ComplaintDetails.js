@@ -1,41 +1,47 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, ScrollView, Alert, TouchableOpacity, Image } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import apiService from '../apiService';
 import AppStyles from '../AppStyles';
+import { AuthContext } from '../Contexts/AuthContext';
 
 const ComplaintDetails = ({ navigation }) => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [complaints, setComplaints] = useState([]);
+  const { userDetails, setCategoryID } = useContext(AuthContext);
 
-  const handleSearch = async () => {
-    try {
-      const response = await apiService.getComplaints({ mobileno: searchTerm, createdBy: searchTerm });
-      setComplaints(response);
-    } catch (error) {
-      console.error('Error fetching complaints:', error);
-      Alert.alert('Error', 'Failed to fetch complaints');
-    }
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      try {
+        const response = await apiService.getComplaints({ mobileno: userDetails.mobileno, createdBy: userDetails.username });
+        setComplaints(response);
+      } catch (error) {
+        console.error('Error fetching complaints:', error);
+        Alert.alert('Error', 'Failed to fetch complaints');
+      }
+    };
+
+    fetchComplaints();
+  }, [userDetails]);
+
+  const truncateText = (text, length) => {
+    return text.length > length ? `${text.substring(0, length)}....` : text;
+  };
+
+  const handleViewReplies = (complaint) => {
+    setCategoryID(complaint.CategoryID);
+    navigation.navigate('ComplaintReplyDetails');
   };
 
   return (
     <ScrollView style={AppStyles.displayContainer}>
       <View style={AppStyles.displayContent}>
         <Text style={AppStyles.displayHeader}>Check Details</Text>
-        <TextInput
-          style={AppStyles.input}
-          placeholder="Enter Mobile No or Created By"
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-        />
-        <TouchableOpacity style={AppStyles.button} onPress={handleSearch}>
-          <Text style={AppStyles.buttonText}>Search</Text>
-        </TouchableOpacity>
         {complaints.length === 0 ? (
           <Text style={AppStyles.displayNoDataText}>No complaints found</Text>
         ) : (
           complaints.map((complaint, index) => (
             <View key={index} style={AppStyles.displaySection}>
-              <Text style={AppStyles.displaySectionHeader}>Complaint {complaint.CategoryID}</Text>
+              <Text style={AppStyles.displaySectionHeader}>Complaint ID {complaint.CategoryID}</Text>
               <View style={AppStyles.displayTable}>
                 <View style={AppStyles.displayRow}>
                   <Text style={AppStyles.displayCellHeader}>Description</Text>
@@ -43,11 +49,25 @@ const ComplaintDetails = ({ navigation }) => {
                 </View>
                 <View style={AppStyles.displayRow}>
                   <Text style={AppStyles.displayCellHeader}>Attachment DOC</Text>
-                  <Text style={AppStyles.displayCell}>{complaint.AttachmentDOC || 'N/A'}</Text>
+                  {complaint.AttachmentDOC ? (
+                    <View style={AppStyles.displayCell}>
+                      <Icon name="insert-drive-file" size={20} color="#000" />
+                      <Text>{truncateText(complaint.AttachmentDOC, 10)}</Text>
+                    </View>
+                  ) : (
+                    <Text style={AppStyles.displayCell}>N/A</Text>
+                  )}
                 </View>
                 <View style={AppStyles.displayRow}>
                   <Text style={AppStyles.displayCellHeader}>User Image</Text>
-                  <Text style={AppStyles.displayCell}>{complaint.UserImage || 'N/A'}</Text>
+                  {complaint.UserImage ? (
+                    <View style={AppStyles.displayCell}>
+                      <Image source={{ uri: complaint.UserImage }} style={AppStyles.imagePreview} />
+                      <Text>{truncateText(complaint.UserImage, 10)}</Text>
+                    </View>
+                  ) : (
+                    <Text style={AppStyles.displayCell}>N/A</Text>
+                  )}
                 </View>
                 <View style={AppStyles.displayRow}>
                   <Text style={AppStyles.displayCellHeader}>Location</Text>
@@ -80,7 +100,7 @@ const ComplaintDetails = ({ navigation }) => {
               </View>
               <TouchableOpacity
                 style={AppStyles.button}
-                onPress={() => navigation.navigate('ComplaintReplyDetails', { complaint })}
+                onPress={() => handleViewReplies(complaint)}
               >
                 <Text style={AppStyles.buttonText}>View Replies</Text>
               </TouchableOpacity>
