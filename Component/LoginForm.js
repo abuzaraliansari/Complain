@@ -12,7 +12,9 @@ const LoginForm = ({ navigation }) => {
   const handleLogin = async () => {
     try {
       const data = { username, password };
+      console.log('Sending login request with data:', data); 
       const response = await apiService.login(data);
+      console.log('Received response:', response);
       console.log('data', data);
       if (response.success) {
         console.log('response', response);
@@ -36,7 +38,7 @@ const LoginForm = ({ navigation }) => {
         Alert.alert('Error', response.message);
       }
     } catch (error) {
-      console.error(error);
+      console.error('Login error:', error);
       Alert.alert('Error', 'Failed to login');
     }
   };

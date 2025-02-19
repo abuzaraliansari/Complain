@@ -1,16 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
 import apiService from '../apiService';
 import AppStyles from '../AppStyles';
+import { AuthContext } from '../Contexts/AuthContext';
 
-const ComplainReply = ({ route, navigation }) => {
-  const { complaint } = route.params;
+const ComplaintReplyDetails = ({ route, navigation }) => {
+  const { complaintno } = route.params;
+  const [replies, setReplies] = useState([]);
   const [replyDescription, setReplyDescription] = useState('');
   const [ipAddress, setIpAddress] = useState('');
+  const { userDetails } = useContext(AuthContext);
 
-  useEffect(() => {
-    fetchIpAddress();
-  }, []);
+  const fetchReplies = async () => {
+    try {
+      const response = await apiService.getComplaintReplies({ complaintno });
+      setReplies(response);
+    } catch (error) {
+      console.error('Error fetching replies:', error);
+      Alert.alert('Error', 'Failed to fetch replies');
+    }
+  };
 
   const fetchIpAddress = async () => {
     try {
@@ -22,38 +31,55 @@ const ComplainReply = ({ route, navigation }) => {
     }
   };
 
-  const handleReply = async () => {
-    const data = {
-      Complaintno: complaint.CategoryID,
-      ReplySno: complaint.CategoryID, // Assuming ReplySno is the same as Complaintno for simplicity
-      ReplyDescription: replyDescription,
-      IPAddress: ipAddress,
-    };
+  const handleReplySubmit = async () => {
+    if (!replyDescription.trim()) {
+      Alert.alert('Error', 'Reply description cannot be empty');
+      return;
+    }
 
     try {
-      await apiService.submitComplaintReply(data);
-      Alert.alert('Success', 'Reply submitted successfully');
-      navigation.goBack();
+      await apiService.submitComplaintReply({
+        complaintno,
+        replyDescription,
+        isAdmin: userDetails.isAdmin,
+        ipAddress,
+      });
+      setReplyDescription('');
+      fetchReplies();
     } catch (error) {
       console.error('Error submitting reply:', error);
       Alert.alert('Error', 'Failed to submit reply');
     }
   };
 
+  useEffect(() => {
+    fetchReplies();
+    fetchIpAddress();
+  }, []);
+
   return (
     <View style={AppStyles.container}>
-      <Text style={AppStyles.title}>Reply to Complaint {complaint.CategoryID}</Text>
-      <TextInput
-        style={AppStyles.input}
-        placeholder="Enter your reply"
-        value={replyDescription}
-        onChangeText={setReplyDescription}
-      />
-      <TouchableOpacity style={AppStyles.button} onPress={handleReply}>
-        <Text style={AppStyles.buttonText}>Submit Reply</Text>
-      </TouchableOpacity>
+      <ScrollView style={AppStyles.scrollView}>
+        {replies.map((reply, index) => (
+          <View key={index} style={reply.IsAdmin ? AppStyles.adminReply : AppStyles.userReply}>
+            <Text style={AppStyles.replyText}>{reply.ReplyDescription}</Text>
+            <Text style={AppStyles.replyDate}>{new Date(reply.ReplyDate).toLocaleString()}</Text>
+          </View>
+        ))}
+      </ScrollView>
+      <View style={AppStyles.replyInputContainer}>
+        <TextInput
+          style={AppStyles.replyInput}
+          value={replyDescription}
+          onChangeText={setReplyDescription}
+          placeholder="Type your reply..."
+        />
+        <TouchableOpacity style={AppStyles.replyButton} onPress={handleReplySubmit}>
+          <Text style={AppStyles.replyButtonText}>Reply</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-export default ComplainReply;
+export default ComplaintReplyDetails;

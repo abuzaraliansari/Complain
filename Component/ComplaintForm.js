@@ -21,7 +21,7 @@ const ComplaintForm = ({ navigation }) => {
   const [ipAddress, setIpAddress] = useState('');
 
   const { userDetails } = useContext(AuthContext);
-
+console.log('User Details:', userDetails);
   useEffect(() => {
     fetchLocation();
     fetchIpAddress();
@@ -127,8 +127,7 @@ const ComplaintForm = ({ navigation }) => {
     }
     const formattedAttachmentDoc = attachmentDoc ? `${userDetails.username}_${userDetails.mobileno}_${attachmentDoc.documentName}` : null;
     const formattedUserImage = userImage ? `${userDetails.username}_${userDetails.mobileno}_${userImage.fileName}` : null;
-
-
+ console.log('Formatted Attachment Doc:',userDetails.isAdmin );
     const data = {
       description,
       attachmentDoc: formattedAttachmentDoc,
@@ -140,6 +139,7 @@ const ComplaintForm = ({ navigation }) => {
       emailID: userDetails.emailID,
       complaintStatus,
       ipAddress,
+      isAdmin: userDetails.isAdmin // Add isAdmin field
     };
 
     try {
@@ -217,12 +217,12 @@ const ComplaintForm = ({ navigation }) => {
         {userImage && (
           <Image source={{ uri: userImage.uri }} style={AppStyles.imagePreview} />
         )}
-        <Text style={AppStyles.label}>Complaint Status</Text>
+        {/* <Text style={AppStyles.label}>Complaint Status</Text>
         <TextInput
           style={AppStyles.input}
           value={complaintStatus}
           editable={false}
-        />
+        /> */}
         <TouchableOpacity style={AppStyles.button} onPress={handleSubmit}>
           <Text style={AppStyles.buttonText}>Submit</Text>
         </TouchableOpacity>

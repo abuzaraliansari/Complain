@@ -231,6 +231,79 @@ const AppStyles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 10,
   },
+  // New styles for ComplaintReplyDetails
+  scrollView: {
+    flexGrow: 1,
+  },
+  replyInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
+  },
+  replyInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    marginRight: 10,
+  },
+  replyButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
+  replyButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  adminReply: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#d1e7ff',
+    borderRadius: 10,
+    padding: 10,
+    marginVertical: 5,
+    maxWidth: '80%',
+  },
+  userReply: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#d4f7dc',
+    borderRadius: 10,
+    padding: 10,
+    marginVertical: 5,
+    maxWidth: '80%',
+  },
+  replyText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  replyDate: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'right',
+    marginTop: 5,
+  },
+  attachmentContainer: {
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  attachmentHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  attachmentText: {
+    fontSize: 14,
+    color: '#555',
+  },
 });
 
 export default AppStyles;

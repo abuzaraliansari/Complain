@@ -36,6 +36,14 @@ const apiService = {
       throw error;
     }
   },
+  getAllComplaintsByDateRange: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/getAllComplaintsByDateRange`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
   submitComplaintReply: async (data) => {
     try {
       const response = await axios.post(`${API_URL}/auth/complaintsreply`, data);
@@ -53,15 +61,14 @@ const apiService = {
       throw error;
     }
   },
-
-checkMobileNumber: async (mobileNumber) => {
-  try {
-    const response = await axios.post(`${API_URL}/auth/checkMobile`, { mobileNumber });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-},
+  checkMobileNumber: async (mobileNumber) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/checkMobile`, { mobileNumber });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default apiService;

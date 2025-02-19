@@ -9,7 +9,6 @@ const SignupForm = ({ navigation }) => {
   const [mobileno, setMobileno] = useState('');
   const [password, setPassword] = useState('');
   const [emailID, setEmailID] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
 
   const emailRegex = /^[^\s@]+@gmail\.com$/;
   const mobileRegex = /^\d{10}$/;
@@ -56,7 +55,7 @@ const SignupForm = ({ navigation }) => {
     }
 
     try {
-      const data = { username, mobileno, password, emailID, isAdmin };
+      const data = { username, mobileno, password, emailID};
       const response = await apiService.signup(data);
       if (response.success) {
         Alert.alert('Success', `User ${username} created successfully`);
@@ -101,13 +100,6 @@ const SignupForm = ({ navigation }) => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-      />
-      <CheckBox
-        title="Is Admin"
-        checked={isAdmin}
-        onPress={() => setIsAdmin(!isAdmin)}
-        containerStyle={AppStyles.checkboxContainer}
-        textStyle={AppStyles.label}
       />
       <TouchableOpacity style={AppStyles.loginButton} onPress={handleSignup}>
         <Text style={AppStyles.loginButtonText}>Signup</Text>
