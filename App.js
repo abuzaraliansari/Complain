@@ -10,7 +10,7 @@ import HomeScreen from './Screens/HomeScreen';
 import FormScreen from './Screens/FormScreen';
 import ComplaintForm from './Component/ComplaintForm';
 import ComplaintDetails from './Component/ComplaintDetails';
-import ComplainReply from './Component/ComplainReply';
+import ComplaintDetailsPage from './Component/ComplaintDetailsPage';
 import ComplaintReplyDetails from './Component/ComplaintReplyDetails';
 
 
@@ -28,7 +28,7 @@ const App = () => {
             <Stack.Screen name="Form" component={FormScreen} />
             <Stack.Screen name="Complain" component={ComplaintForm} />
             <Stack.Screen name="ComplaintDetails" component={ComplaintDetails} />
-            <Stack.Screen name="ComplainReply" component={ComplainReply} />
+            <Stack.Screen name="ComplaintDetailsPage" component={ComplaintDetailsPage} />
             <Stack.Screen name="ComplaintReplyDetails" component={ComplaintReplyDetails} />
      
           </Stack.Navigator>

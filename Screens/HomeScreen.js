@@ -15,7 +15,7 @@ const HomeScreen = ({ navigation }) => {
 
   const handleLogout = () => {
     setAuthToken(null);
-    navigation.navigate('Login');
+    navigation.replace('Login');
   };
 
   const handleComplain = () => {

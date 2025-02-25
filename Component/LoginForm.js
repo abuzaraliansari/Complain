@@ -30,7 +30,7 @@ const LoginForm = ({ navigation }) => {
           isAdmin: response.user.isAdmin,
         });
         console.log('User details id:', response.user.userID);
-        navigation.navigate('Home');
+        navigation.replace('Home');
       } else {
         Alert.alert('Error', response.message);
       }

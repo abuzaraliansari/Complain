@@ -20,14 +20,25 @@ const ComplaintDetails = ({ navigation }) => {
 
   const fetchComplaints = async () => {
     try {
+      console.log("Fetching complaints with the following parameters:");
+      console.log("Mobile Number:", userDetails.mobileNumber);
+      console.log("Created By:", userDetails.username);
+      console.log("Start Date:", startDate);
+      console.log("End Date:", endDate);
+      console.log("Complaint Type:", complaintType);
+      console.log("Complaint Status:", complaintStatus);
+
       const response = await apiService.getComplaints({
         mobileNumber: userDetails.mobileNumber,
-        createdBy: userDetails.username,
+        createdBy: userDetails.userID,
         startDate,
         endDate,
         complaintType,
         complaintStatus
       });
+
+      console.log("API response:", response);
+
       setComplaints(response);
     } catch (error) {
       console.error('Error fetching complaints:', error);
@@ -39,8 +50,8 @@ const ComplaintDetails = ({ navigation }) => {
     fetchComplaints();
   }, [startDate, endDate, complaintType, complaintStatus]);
 
-  const handleViewDetails = (complaintID) => {
-    navigation.navigate('ComplaintDetailsPage', { complaintID });
+  const handleViewDetails = (complaint) => {
+    navigation.navigate('ComplaintDetailsPage', { complaint });
   };
 
   const handleReply = (complaintID) => {
@@ -52,74 +63,97 @@ const ComplaintDetails = ({ navigation }) => {
       <Animatable.View animation="fadeInUp" style={AppStyles.container}>
         <Text style={AppStyles.header}>Select Date Range</Text>
         <View style={AppStyles.datePickerContainer}>
-          <TouchableOpacity onPress={() => setShowStartDatePicker(true)} style={AppStyles.datePickerBox}>
-            <Text style={AppStyles.datePickerText}>Start Date: {startDate.toDateString()}</Text>
-          </TouchableOpacity>
-          {showStartDatePicker && (
-            <DateTimePicker
-              value={startDate}
-              mode="date"
-              display="default"
-              onChange={(event, date) => {
-                setShowStartDatePicker(false);
-                if (date) setStartDate(date);
-              }}
-            />
-          )}
-          <TouchableOpacity onPress={() => setShowEndDatePicker(true)} style={AppStyles.datePickerBox}>
-            <Text style={AppStyles.datePickerText}>End Date: {endDate.toDateString()}</Text>
-          </TouchableOpacity>
-          {showEndDatePicker && (
-            <DateTimePicker
-              value={endDate}
-              mode="date"
-              display="default"
-              onChange={(event, date) => {
-                setShowEndDatePicker(false);
-                if (date) setEndDate(date);
-              }}
-            />
-          )}
+          <View style={AppStyles.datePickerBox}>
+            <Text style={AppStyles.datePickerLabel}>Start Date:</Text>
+            <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
+              <Text style={AppStyles.datePickerText}>{startDate.toDateString()}</Text>
+            </TouchableOpacity>
+            {showStartDatePicker && (
+              <DateTimePicker
+                value={startDate}
+                mode="date"
+                display="default"
+                onChange={(event, date) => {
+                  setShowStartDatePicker(false);
+                  if (date) setStartDate(date);
+                }}
+              />
+            )}
+          </View>
+          <View style={AppStyles.datePickerBox}>
+            <Text style={AppStyles.datePickerLabel}>End Date:</Text>
+            <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
+              <Text style={AppStyles.datePickerText}>{endDate.toDateString()}</Text>
+            </TouchableOpacity>
+            {showEndDatePicker && (
+              <DateTimePicker
+                value={endDate}
+                mode="date"
+                display="default"
+                onChange={(event, date) => {
+                  setShowEndDatePicker(false);
+                  if (date) setEndDate(date);
+                }}
+              />
+            )}
+          </View>
         </View>
-        <Text style={AppStyles.header}>Select Complaint Type</Text>
-        <View style={AppStyles.pickerBox}>
-          <Picker
-            selectedValue={complaintType}
-            onValueChange={(itemValue) => setComplaintType(itemValue)}
-            style={AppStyles.picker}
-          >
-            <Picker.Item label="Select Complaint Type" value="" />
-            <Picker.Item label="Water" value="water" />
-            <Picker.Item label="Road" value="road" />
-            <Picker.Item label="Electricity" value="electricity" />
-            <Picker.Item label="Waste" value="waste" />
-            <Picker.Item label="Others" value="others" />
-          </Picker>
-        </View>
-        <Text style={AppStyles.header}>Select Complaint Status</Text>
-        <View style={AppStyles.pickerBox}>
-          <Picker
-            selectedValue={complaintStatus}
-            onValueChange={(itemValue) => setComplaintStatus(itemValue)}
-            style={AppStyles.picker}
-          >
-            <Picker.Item label="Select Complaint Status" value="" />
-            <Picker.Item label="Open" value="Open" />
-            <Picker.Item label="Closed" value="Closed" />
-          </Picker>
+        <Text style={AppStyles.header}>Select Type And Status</Text>
+        <View style={AppStyles.pickerContainer}>
+          <View style={AppStyles.pickerBox}>
+            <Text style={AppStyles.pickerLabel}>Complaint Type</Text>
+            <Picker
+              selectedValue={complaintType}
+              onValueChange={(itemValue) => setComplaintType(itemValue)}
+              style={AppStyles.picker}
+            >
+              <Picker.Item label="Type" value="" />
+              <Picker.Item label="Water" value="water" />
+              <Picker.Item label="Road" value="road" />
+              <Picker.Item label="Electricity" value="electricity" />
+              <Picker.Item label="Waste" value="waste" />
+              <Picker.Item label="Others" value="others" />
+            </Picker>
+          </View>
+          <View style={AppStyles.pickerBox}>
+            <Text style={AppStyles.pickerLabel}>Complaint Status</Text>
+            <Picker
+              selectedValue={complaintStatus}
+              onValueChange={(itemValue) => setComplaintStatus(itemValue)}
+              style={AppStyles.picker}
+            >
+              <Picker.Item label="Status" value="" />
+              <Picker.Item label="Open" value="Open" />
+              <Picker.Item label="Closed" value="Closed" />
+            </Picker>
+          </View>
         </View>
         <Text style={AppStyles.header}>Complaints</Text>
         {complaints.length > 0 ? (
           complaints.map((complaint) => (
-            <Animatable.View key={complaint.ComplaintID} animation="fadeInUp" style={AppStyles.displayRow}>
-              <Text style={AppStyles.displayCell}>Complaint ID: {complaint.ComplaintID}</Text>
-              <Text style={AppStyles.displayCell}>Type: {complaint.ComplaintType}</Text>
-              <TouchableOpacity style={AppStyles.button} onPress={() => handleViewDetails(complaint.ComplaintID)}>
-                <Text style={AppStyles.buttonText}>View Details</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={AppStyles.button} onPress={() => handleReply(complaint.ComplaintID)}>
-                <Text style={AppStyles.buttonText}>Reply</Text>
-              </TouchableOpacity>
+            <Animatable.View key={complaint.ComplaintID} animation="fadeInUp" style={AppStyles.complaintBox}>
+              <View style={AppStyles.complaintRow}>
+                <Text style={AppStyles.complaintLabel}>Complaint ID:</Text>
+                <TouchableOpacity onPress={() => handleViewDetails(complaint)}>
+                  <Text style={AppStyles.complaintValueLink}>{complaint.ComplaintID}</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={AppStyles.complaintRow}>
+                <Text style={AppStyles.complaintLabel}>Type:</Text>
+                <Text style={AppStyles.complaintValue}>{complaint.ComplaintsType}</Text>
+              </View>
+              <View style={AppStyles.complaintRow}>
+                <Text style={AppStyles.complaintLabel}>Status:</Text>
+                <Text style={AppStyles.complaintValue}>{complaint.ComplaintsStatus}</Text>
+              </View>
+              <View style={AppStyles.complaintRow}>
+                <Text style={AppStyles.complaintLabel}>Mobile No:</Text>
+                <Text style={AppStyles.complaintValue}>{complaint.MobileNo}</Text>
+              </View>
+              <View style={AppStyles.complaintRow}>
+                <Text style={AppStyles.complaintLabel}>Location:</Text>
+                <Text style={AppStyles.complaintValue}>{complaint.Location}</Text>
+              </View>
             </Animatable.View>
           ))
         ) : (

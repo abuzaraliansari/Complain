@@ -218,6 +218,16 @@ const AppStyles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  displayCellHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  displayCellLink: {
+    fontSize: 16,
+    color: 'blue',
+    fontWeight: 'bold',
+  },
   noDataText: {
     fontSize: 16,
     color: '#999',
@@ -238,20 +248,76 @@ const AppStyles = StyleSheet.create({
     backgroundColor: '#fff',
     marginHorizontal: 5,
   },
+  datePickerLabel: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 5,
+  },
   datePickerText: {
     fontSize: 16,
     color: '#333',
   },
+  pickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
   pickerBox: {
+    flex: 1,
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
     backgroundColor: '#fff',
-    marginBottom: 20,
+    marginHorizontal: 5,
+    padding: 10,
+  },
+  pickerLabel: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 5,
   },
   picker: {
     height: 50,
     width: '100%',
+  },
+  complaintBox: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    padding: 10,
+    marginBottom: 10,
+  },
+  complaintRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  complaintLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  complaintValue: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'left',
+  },
+  complaintValueLink: {
+    fontSize: 16,
+    color: 'blue',
+    fontWeight: 'bold',
+    textAlign: 'left',
+  },
+  documentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  documentText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#333',
   },
 });
 
