@@ -5,40 +5,37 @@ import { AuthContext } from '../Contexts/AuthContext';
 import AppStyles from '../AppStyles';
 
 const LoginForm = ({ navigation }) => {
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState(''); // This will hold either username or mobile number
   const [password, setPassword] = useState('');
   const { setAuthToken, setUserDetails } = useContext(AuthContext);
 
   const handleLogin = async () => {
     try {
-      const data = { username, password };
+      const data = { password };
+      if (isNaN(identifier)) {
+        data.username = identifier;
+      } else {
+        data.mobileNumber = identifier;
+      }
       console.log('Sending login request with data:', data); 
-      const response = await apiService.login(data);
+      const response = await apiService.loginc(data);
       console.log('Received response:', response);
-      console.log('data', data);
       if (response.success) {
-        console.log('response', response);
         setAuthToken(response.token);
         setUserDetails({
+          userID: response.user.userID,
           username: response.user.username,
-          mobileno: response.user.mobileno,
+          mobileNumber: response.user.mobileNumber,
           emailID: response.user.emailID,
-          isAdmin: response.user.isAdmin
+          isAdmin: response.user.isAdmin,
         });
-        console.log(response);
-        console.log(username);
-        console.log(password);
-        console.log(response.token);
-        console.log(response.user.username);
-        console.log(response.user.mobileno);
-        console.log(response.user.emailID);
-        console.log(response.user.isAdmin);
+        console.log('User details id:', response.user.userID);
         navigation.navigate('Home');
       } else {
         Alert.alert('Error', response.message);
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Error during login:', error);
       Alert.alert('Error', 'Failed to login');
     }
   };
@@ -46,11 +43,12 @@ const LoginForm = ({ navigation }) => {
   return (
     <View style={AppStyles.loginContainer}>
       <Text style={AppStyles.loginTitle}>Login</Text>
+      <Text style={AppStyles.Sublabel}>Password: First 4 digits of Mobile No + Last 4 digits of Aadhaar No</Text>
       <TextInput
         style={AppStyles.loginInput}
-        placeholder="Username or Mobile No"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="Username or Mobile Number"
+        value={identifier}
+        onChangeText={setIdentifier}
       />
       <TextInput
         style={AppStyles.loginInput}
@@ -61,9 +59,6 @@ const LoginForm = ({ navigation }) => {
       />
       <TouchableOpacity style={AppStyles.loginButton} onPress={handleLogin}>
         <Text style={AppStyles.loginButtonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={AppStyles.loginButton} onPress={() => navigation.navigate('Signup')}>
-        <Text style={AppStyles.loginButtonText}>Go to Signup</Text>
       </TouchableOpacity>
     </View>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import apiService from '../apiService';
 import AppStyles from '../AppStyles';
 import { AuthContext } from '../Contexts/AuthContext';
@@ -59,12 +60,17 @@ const ComplaintReplyDetails = ({ route, navigation }) => {
 
   return (
     <View style={AppStyles.container}>
-      <ScrollView style={AppStyles.scrollView}>
+      <ScrollView style={AppStyles.scrollContainer}>
         {replies.map((reply, index) => (
-          <View key={index} style={reply.IsAdmin ? AppStyles.adminReply : AppStyles.userReply}>
+          <Animated.View
+            key={index}
+            entering={FadeIn}
+            exiting={FadeOut}
+            style={reply.IsAdmin ? AppStyles.adminReply : AppStyles.userReply}
+          >
             <Text style={AppStyles.replyText}>{reply.ReplyDescription}</Text>
             <Text style={AppStyles.replyDate}>{new Date(reply.ReplyDate).toLocaleString()}</Text>
-          </View>
+          </Animated.View>
         ))}
       </ScrollView>
       <View style={AppStyles.replyInputContainer}>

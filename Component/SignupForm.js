@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { CheckBox } from 'react-native-elements';
 import apiService from '../apiService';
 import AppStyles from '../AppStyles';
 
@@ -16,7 +15,7 @@ const SignupForm = ({ navigation }) => {
 
   const checkMobileNumber = async (mobileNumber) => {
     try {
-      const response = await apiService.checkMobileNumber(mobileNumber);
+      const response = await apiService.CheckMobileNumber(mobileNumber);
       return response.exists;
     } catch (error) {
       console.error('Error checking mobile number:', error);
@@ -55,7 +54,7 @@ const SignupForm = ({ navigation }) => {
     }
 
     try {
-      const data = { username, mobileno, password, emailID};
+      const data = { username, mobileno, password, emailID };
       const response = await apiService.signup(data);
       if (response.success) {
         Alert.alert('Success', `User ${username} created successfully`);

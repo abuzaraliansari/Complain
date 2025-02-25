@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Animatable from 'react-native-animatable';
 import apiService from '../apiService';
 import AppStyles from '../AppStyles';
 import { AuthContext } from '../Contexts/AuthContext';
@@ -9,17 +10,24 @@ import { AuthContext } from '../Contexts/AuthContext';
 const ComplaintDetails = ({ navigation }) => {
   const [complaints, setComplaints] = useState([]);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
-  const [startDate, setStartDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 7)));
   const [endDate, setEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [complaintType, setComplaintType] = useState('');
+  const [complaintStatus, setComplaintStatus] = useState('');
   const { userDetails, setCategoryID } = useContext(AuthContext);
 
   const fetchComplaints = async () => {
     try {
-      const response = userDetails.isAdmin
-        ? await apiService.getAllComplaintsByDateRange({ startDate, endDate })
-        : await apiService.getComplaints({ mobileno: userDetails.mobileno, createdBy: userDetails.username, isAdmin: userDetails.isAdmin });
+      const response = await apiService.getComplaints({
+        mobileNumber: userDetails.mobileNumber,
+        createdBy: userDetails.username,
+        startDate,
+        endDate,
+        complaintType,
+        complaintStatus
+      });
       setComplaints(response);
     } catch (error) {
       console.error('Error fetching complaints:', error);
@@ -29,116 +37,95 @@ const ComplaintDetails = ({ navigation }) => {
 
   useEffect(() => {
     fetchComplaints();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, complaintType, complaintStatus]);
 
-  const handleViewReplies = () => {
-    if (selectedComplaint) {
-      const selectedComplaintDetails = complaints.find(complaint => complaint.CategoryID === selectedComplaint);
-      setCategoryID(selectedComplaint);
-      navigation.navigate('ComplaintReplyDetails', { complaintno: selectedComplaint, attachmentDoc: selectedComplaintDetails.AttachmentDOC });
-    } else {
-      Alert.alert('Error', 'Please select a complaint');
-    }
+  const handleViewDetails = (complaintID) => {
+    navigation.navigate('ComplaintDetailsPage', { complaintID });
+  };
+
+  const handleReply = (complaintID) => {
+    navigation.navigate('ComplaintReplyPage', { complaintID });
   };
 
   return (
-    <ScrollView style={AppStyles.displayContainer}>
-      <View style={AppStyles.displayContent}>
-        <Text style={AppStyles.displayHeader}>Select Date Range</Text>
-        <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
-          <Text style={AppStyles.datePickerText}>Start Date: {startDate.toDateString()}</Text>
-        </TouchableOpacity>
-        {showStartDatePicker && (
-          <DateTimePicker
-            value={startDate}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              setShowStartDatePicker(false);
-              if (date) setStartDate(date);
-            }}
-          />
+    <ScrollView style={AppStyles.container}>
+      <Animatable.View animation="fadeInUp" style={AppStyles.container}>
+        <Text style={AppStyles.header}>Select Date Range</Text>
+        <View style={AppStyles.datePickerContainer}>
+          <TouchableOpacity onPress={() => setShowStartDatePicker(true)} style={AppStyles.datePickerBox}>
+            <Text style={AppStyles.datePickerText}>Start Date: {startDate.toDateString()}</Text>
+          </TouchableOpacity>
+          {showStartDatePicker && (
+            <DateTimePicker
+              value={startDate}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setShowStartDatePicker(false);
+                if (date) setStartDate(date);
+              }}
+            />
+          )}
+          <TouchableOpacity onPress={() => setShowEndDatePicker(true)} style={AppStyles.datePickerBox}>
+            <Text style={AppStyles.datePickerText}>End Date: {endDate.toDateString()}</Text>
+          </TouchableOpacity>
+          {showEndDatePicker && (
+            <DateTimePicker
+              value={endDate}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setShowEndDatePicker(false);
+                if (date) setEndDate(date);
+              }}
+            />
+          )}
+        </View>
+        <Text style={AppStyles.header}>Select Complaint Type</Text>
+        <View style={AppStyles.pickerBox}>
+          <Picker
+            selectedValue={complaintType}
+            onValueChange={(itemValue) => setComplaintType(itemValue)}
+            style={AppStyles.picker}
+          >
+            <Picker.Item label="Select Complaint Type" value="" />
+            <Picker.Item label="Water" value="water" />
+            <Picker.Item label="Road" value="road" />
+            <Picker.Item label="Electricity" value="electricity" />
+            <Picker.Item label="Waste" value="waste" />
+            <Picker.Item label="Others" value="others" />
+          </Picker>
+        </View>
+        <Text style={AppStyles.header}>Select Complaint Status</Text>
+        <View style={AppStyles.pickerBox}>
+          <Picker
+            selectedValue={complaintStatus}
+            onValueChange={(itemValue) => setComplaintStatus(itemValue)}
+            style={AppStyles.picker}
+          >
+            <Picker.Item label="Select Complaint Status" value="" />
+            <Picker.Item label="Open" value="Open" />
+            <Picker.Item label="Closed" value="Closed" />
+          </Picker>
+        </View>
+        <Text style={AppStyles.header}>Complaints</Text>
+        {complaints.length > 0 ? (
+          complaints.map((complaint) => (
+            <Animatable.View key={complaint.ComplaintID} animation="fadeInUp" style={AppStyles.displayRow}>
+              <Text style={AppStyles.displayCell}>Complaint ID: {complaint.ComplaintID}</Text>
+              <Text style={AppStyles.displayCell}>Type: {complaint.ComplaintType}</Text>
+              <TouchableOpacity style={AppStyles.button} onPress={() => handleViewDetails(complaint.ComplaintID)}>
+                <Text style={AppStyles.buttonText}>View Details</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={AppStyles.button} onPress={() => handleReply(complaint.ComplaintID)}>
+                <Text style={AppStyles.buttonText}>Reply</Text>
+              </TouchableOpacity>
+            </Animatable.View>
+          ))
+        ) : (
+          <Text style={AppStyles.noDataText}>No complaints found</Text>
         )}
-        <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
-          <Text style={AppStyles.datePickerText}>End Date: {endDate.toDateString()}</Text>
-        </TouchableOpacity>
-        {showEndDatePicker && (
-          <DateTimePicker
-            value={endDate}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              setShowEndDatePicker(false);
-              if (date) setEndDate(date);
-            }}
-          />
-        )}
-        <Text style={AppStyles.displayHeader}>Select Complaint</Text>
-        <Picker
-          selectedValue={selectedComplaint}
-          onValueChange={(itemValue) => setSelectedComplaint(itemValue)}
-          style={AppStyles.picker}
-        >
-          <Picker.Item label="Select a complaint" value={null} />
-          {complaints.map((complaint) => (
-            <Picker.Item key={complaint.CategoryID} label={`Complaint ID ${complaint.CategoryID}`} value={complaint.CategoryID} />
-          ))}
-        </Picker>
-        <TouchableOpacity style={AppStyles.button} onPress={handleViewReplies}>
-          <Text style={AppStyles.buttonText}>View Replies</Text>
-        </TouchableOpacity>
-        {selectedComplaint && (
-          <View style={AppStyles.displaySection}>
-            <Text style={AppStyles.displaySectionHeader}>Complaint Details</Text>
-            {complaints
-              .filter((complaint) => complaint.CategoryID === selectedComplaint)
-              .map((complaint, index) => (
-                <View key={index} style={AppStyles.displayTable}>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>Description</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.Description}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>Attachment DOC</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.AttachmentDOC || 'N/A'}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>User Image</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.UserImage || 'N/A'}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>Location</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.Location || 'N/A'}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>Created By</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.CreatedBy}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>Created Date</Text>
-                    <Text style={AppStyles.displayCell}>{new Date(complaint.CreatedDate).toLocaleString()}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>Mobile No</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.mobileno}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>Email ID</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.EmailID}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>Complaint Status</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.ComplaintStatus}</Text>
-                  </View>
-                  <View style={AppStyles.displayRow}>
-                    <Text style={AppStyles.displayCellHeader}>IP Address</Text>
-                    <Text style={AppStyles.displayCell}>{complaint.IPAddress}</Text>
-                  </View>
-                </View>
-              ))}
-          </View>
-        )}
-      </View>
+      </Animatable.View>
     </ScrollView>
   );
 };

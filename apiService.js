@@ -4,7 +4,7 @@ import Config from 'react-native-config';
 const API_URL = Config.API_URL;
 
 const apiService = {
-  login: async (data) => {
+  loginc: async (data) => {
     try {
       const response = await axios.post(`${API_URL}/auth/loginC`, data);
       return response.data;
@@ -24,6 +24,7 @@ const apiService = {
     try {
       const response = await axios.post(`${API_URL}/auth/complaints`, data);
       return response.data;
+  
     } catch (error) {
       throw error;
     }

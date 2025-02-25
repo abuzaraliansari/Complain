@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [categoryID, setCategoryID] = useState(null);
 
   console.log('AuthContext categoryID:', categoryID);
+  console.log(userDetails);
 
   if (userDetails) {
     console.log('AuthContext isAdmin:', userDetails.isAdmin);

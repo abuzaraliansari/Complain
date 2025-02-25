@@ -21,7 +21,8 @@ const ComplaintForm = ({ navigation }) => {
   const [ipAddress, setIpAddress] = useState('');
 
   const { userDetails } = useContext(AuthContext);
-console.log('User Details:', userDetails);
+  console.log('User Details:', userDetails);
+
   useEffect(() => {
     fetchLocation();
     fetchIpAddress();
@@ -96,6 +97,7 @@ console.log('User Details:', userDetails);
           console.log('Camera error:', response.errorMessage);
         } else if (response.assets && response.assets.length > 0) {
           const { uri, fileName } = response.assets[0];
+          console.log('Photo taken:', uri, fileName);
           setUserImage({ uri, fileName });
         }
       }
@@ -125,26 +127,32 @@ console.log('User Details:', userDetails);
       Alert.alert('Error', 'Email must end with @gmail.com');
       return;
     }
-    const formattedAttachmentDoc = attachmentDoc ? `${userDetails.username}_${userDetails.mobileno}_${attachmentDoc.documentName}` : null;
-    const formattedUserImage = userImage ? `${userDetails.username}_${userDetails.mobileno}_${userImage.fileName}` : null;
- console.log('Formatted Attachment Doc:',userDetails.isAdmin );
+    const formattedAttachmentDoc = attachmentDoc ? `${userDetails.userID}_${userDetails.mobileNumber}_${attachmentDoc.documentName}` : null;
+    const formattedUserImage = userImage ? `${userDetails.userID}_${userDetails.mobileNumber}_${userImage.fileName}` : null;
+    console.log('Formatted Attachment Doc:', formattedAttachmentDoc);
     const data = {
       description,
       attachmentDoc: formattedAttachmentDoc,
       userImage: formattedUserImage,
       location: location ? `${location.latitude},${location.longitude}` : null,
-      createdBy: userDetails.username,
+      createdBy: userDetails.userID, // Set createdBy to userID
       createdDate: new Date(),
-      mobileno: userDetails.mobileno,
-      emailID: userDetails.emailID,
+      mobileNumber: userDetails.mobileNumber,
       complaintStatus,
       ipAddress,
-      isAdmin: userDetails.isAdmin // Add isAdmin field
+      isAdmin: userDetails.isAdmin, // Add isAdmin field
+      userID: userDetails.userID, // Add userID field
+      complaintType, // Add complaintType field
+      docUrl: attachmentDoc ? `http://localhost:3000/uploads/docs/${formattedAttachmentDoc}` : null,
+      imageUrl: userImage ? `http://localhost:3000/uploads/images/${formattedUserImage}` : null,
     };
 
+    console.log('Data to be submitted:', data);
+
     try {
-      await apiService.submitComplaint(data);
-      Alert.alert('Success', 'Complaint submitted successfully');
+      const response = await apiService.submitComplaint(data);
+      console.log(response);
+      Alert.alert('Success', `Complaint submitted successfully. Complaint ID: ${response.complaintID}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
       navigation.navigate('Home');
     } catch (error) {
       console.error('Error submitting complaint:', error);
@@ -155,7 +163,7 @@ console.log('User Details:', userDetails);
   return (
     <ScrollView contentContainerStyle={AppStyles.scrollContainer}>
       <View style={AppStyles.container}>
-        <Text style={AppStyles.title}>Submit Complaint</Text>
+        <Text style={AppStyles.title}>Submit Complaint {userDetails.userID}</Text>
         <Text style={AppStyles.label}>Complaint Type</Text>
         <Picker
           selectedValue={complaintType}
@@ -163,22 +171,32 @@ console.log('User Details:', userDetails);
           onValueChange={(itemValue) => setComplaintType(itemValue)}
         >
           <Picker.Item label="Select Complaint Type" value="" />
-          <Picker.Item label="Type 1" value="type1" />
-          <Picker.Item label="Type 2" value="type2" />
-          <Picker.Item label="Type 3" value="type3" />
+          <Picker.Item label="Water" value="water" />
+          <Picker.Item label="Road" value="road" />
+          <Picker.Item label="Electricity" value="electricity" />
+          <Picker.Item label="Waste" value="waste" />
+          <Picker.Item label="Others" value="others" />
         </Picker>
         <Text style={AppStyles.label}>Description</Text>
         <TextInput
-          style={AppStyles.input}
+          style={[AppStyles.input, { height: 100 }]}
           placeholder="Description"
           value={description}
           onChangeText={setDescription}
+          multiline
+        />
+        <Text style={AppStyles.label}>User ID</Text>
+        <TextInput
+          style={AppStyles.input}
+          placeholder="User ID"
+          value={userDetails.userID.toString()}
+          editable={false}
         />
         <Text style={AppStyles.label}>Mobile No</Text>
         <TextInput
           style={AppStyles.input}
           placeholder="Mobile No"
-          value={userDetails.mobileno}
+          value={userDetails.mobileNumber}
           editable={false}
         />
         <Text style={AppStyles.label}>Email ID</Text>
@@ -217,12 +235,6 @@ console.log('User Details:', userDetails);
         {userImage && (
           <Image source={{ uri: userImage.uri }} style={AppStyles.imagePreview} />
         )}
-        {/* <Text style={AppStyles.label}>Complaint Status</Text>
-        <TextInput
-          style={AppStyles.input}
-          value={complaintStatus}
-          editable={false}
-        /> */}
         <TouchableOpacity style={AppStyles.button} onPress={handleSubmit}>
           <Text style={AppStyles.buttonText}>Submit</Text>
         </TouchableOpacity>
