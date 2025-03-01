@@ -22,9 +22,9 @@ const apiService = {
   },
   submitComplaint: async (data) => {
     try {
+      console.log('Data being sent to API:', data);
       const response = await axios.post(`${API_URL}/auth/complaints`, data);
       return response.data;
-  
     } catch (error) {
       throw error;
     }
@@ -65,6 +65,50 @@ const apiService = {
   checkMobileNumber: async (mobileNumber) => {
     try {
       const response = await axios.post(`${API_URL}/auth/checkMobile`, { mobileNumber });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getLocalities: async (data, token) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/Locality`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getColonies: async (data, token) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/Colony`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  addColony: async (data, token) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/AddColony`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  updateComplaintStatus: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/complaintsstatus`, data);
       return response.data;
     } catch (error) {
       throw error;

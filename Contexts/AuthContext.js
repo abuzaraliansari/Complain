@@ -11,7 +11,8 @@ export const AuthProvider = ({ children }) => {
   console.log(userDetails);
 
   if (userDetails) {
-    console.log('AuthContext isAdmin:', userDetails.isAdmin);
+    console.log('AuthContext userDetails:', userDetails);
+    console.log('AuthContext roles:', userDetails.roles);
   }
 
   return (

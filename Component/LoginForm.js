@@ -27,9 +27,11 @@ const LoginForm = ({ navigation }) => {
           username: response.user.username,
           mobileNumber: response.user.mobileNumber,
           emailID: response.user.emailID,
-          isAdmin: response.user.isAdmin,
+          roles: response.user.roles,
+          isActive: response.user.isActive,
         });
         console.log('User details id:', response.user.userID);
+        console.log('Roles:', response.user.roles);
         navigation.replace('Home');
       } else {
         Alert.alert('Error', response.message);

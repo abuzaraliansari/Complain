@@ -1,12 +1,39 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, Linking } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import AppStyles from '../AppStyles';
+import apiService from '../apiService';
+import { AuthContext } from '../Contexts/AuthContext';
 
 const ComplaintDetailsPage = ({ route, navigation }) => {
   const { complaint } = route.params;
+  const { userDetails } = useContext(AuthContext);
 
-  const handleDownload = (url) => {
-    Linking.openURL(url);
+  const handleCloseComplaint = async () => {
+    try {
+      console.log('Closing complaint:', complaint.ComplaintID);
+      await apiService.updateComplaintStatus({
+        complaintno: complaint.ComplaintID,
+        status: 'Closed',
+        modifiedBy: userDetails.username,
+      });
+      Alert.alert('Success', 'Complaint closed successfully');
+      navigation.replace('Home');
+    } catch (error) {
+      console.error('Error closing complaint:', error);
+      Alert.alert('Error', 'Failed to close complaint');
+    }
+  };
+
+  const confirmCloseComplaint = () => {
+    Alert.alert(
+      'Close Complaint',
+      'Are you sure you want to close this complaint?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'OK', onPress: handleCloseComplaint },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
@@ -39,6 +66,22 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
             <Text style={AppStyles.displayCell}>{complaint.Location || 'N/A'}</Text>
           </View>
           <View style={AppStyles.displayRow}>
+            <Text style={AppStyles.displayCellHeader}>Zone ID</Text>
+            <Text style={AppStyles.displayCell}>{complaint.ZoneID || 'N/A'}</Text>
+          </View>
+          <View style={AppStyles.displayRow}>
+            <Text style={AppStyles.displayCellHeader}>Locality ID</Text>
+            <Text style={AppStyles.displayCell}>{complaint.LocalityID || 'N/A'}</Text>
+          </View>
+          <View style={AppStyles.displayRow}>
+            <Text style={AppStyles.displayCellHeader}>Colony</Text>
+            <Text style={AppStyles.displayCell}>{complaint.Colony || 'N/A'}</Text>
+          </View>
+          <View style={AppStyles.displayRow}>
+            <Text style={AppStyles.displayCellHeader}>IP Address</Text>
+            <Text style={AppStyles.displayCell}>{complaint.IPAddress || 'N/A'}</Text>
+          </View>
+          <View style={AppStyles.displayRow}>
             <Text style={AppStyles.displayCellHeader}>Created By</Text>
             <Text style={AppStyles.displayCell}>{complaint.CreatedBy || 'N/A'}</Text>
           </View>
@@ -46,22 +89,14 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
             <Text style={AppStyles.displayCellHeader}>Created Date</Text>
             <Text style={AppStyles.displayCell}>{complaint.CreatedDate || 'N/A'}</Text>
           </View>
-          {complaint.DocUrl && (
-            <View style={AppStyles.displayRow}>
-              <Text style={AppStyles.displayCellHeader}>Document</Text>
-              <TouchableOpacity onPress={() => handleDownload(complaint.DocUrl)}>
-                <Text style={AppStyles.displayCellLink}>Download Document</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          {complaint.ImageUrl && (
-            <View style={AppStyles.displayRow}>
-              <Text style={AppStyles.displayCellHeader}>Photo</Text>
-              <TouchableOpacity onPress={() => handleDownload(complaint.ImageUrl)}>
-                <Image source={{ uri: complaint.ImageUrl }} style={AppStyles.imagePreview} />
-              </TouchableOpacity>
-            </View>
-          )}
+        </View>
+        <View style={AppStyles.buttonContainer}>
+          <TouchableOpacity style={AppStyles.replyButton} onPress={() => navigation.navigate('ComplaintReplyDetails', { complaintno: complaint.ComplaintID })}>
+            <Text style={AppStyles.replyButtonText}>Reply</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={AppStyles.closeButton} onPress={confirmCloseComplaint}>
+            <Text style={AppStyles.closeButtonText}>Close Complaint</Text>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={AppStyles.button} onPress={() => navigation.goBack()}>
           <Text style={AppStyles.buttonText}>Back</Text>

@@ -9,6 +9,7 @@ import AppStyles from '../AppStyles';
 import apiService from '../apiService';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { AuthContext } from '../Contexts/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ComplaintForm = ({ navigation }) => {
   const [description, setDescription] = useState('');
@@ -19,14 +20,33 @@ const ComplaintForm = ({ navigation }) => {
   const [complaintType, setComplaintType] = useState('');
   const [complaintStatus, setComplaintStatus] = useState('Open');
   const [ipAddress, setIpAddress] = useState('');
+  const [zoneID, setZoneID] = useState('');
+  const [localityID, setLocalityID] = useState('');
+  const [colony, setColony] = useState('');
+  const [localities, setLocalities] = useState([]);
+  const [colonies, setColonies] = useState([]);
+  const [showAddColony, setShowAddColony] = useState(false);
+  const [newColony, setNewColony] = useState('');
 
-  const { userDetails } = useContext(AuthContext);
+  const { userDetails, authToken } = useContext(AuthContext);
   console.log('User Details:', userDetails);
 
   useEffect(() => {
     fetchLocation();
     fetchIpAddress();
   }, []);
+
+  useEffect(() => {
+    if (zoneID) {
+      fetchLocalities(zoneID);
+    }
+  }, [zoneID]);
+
+  useEffect(() => {
+    if (localityID) {
+      fetchColonies(localityID);
+    }
+  }, [localityID]);
 
   const fetchLocation = () => {
     setError(null);
@@ -54,6 +74,28 @@ const ComplaintForm = ({ navigation }) => {
       setIpAddress(data.ip);
     } catch (error) {
       console.error('Error fetching IP address:', error);
+    }
+  };
+
+  const fetchLocalities = async (zoneID) => {
+    try {
+      console.log('Fetching localities for zoneID:', zoneID);
+      const response = await apiService.getLocalities({ ZoneID: zoneID }, authToken);
+      console.log('Localities fetched:', response);
+      setLocalities(response.locality[0]);
+    } catch (error) {
+      console.error('Error fetching localities:', error);
+    }
+  };
+
+  const fetchColonies = async (localityID) => {
+    try {
+      console.log('Fetching colonies for localityID:', localityID);
+      const response = await apiService.getColonies({ LocalityID: localityID }, authToken);
+      console.log('Colonies fetched:', response);
+      setColonies(response.locality[0]);
+    } catch (error) {
+      console.error('Error fetching colonies:', error);
     }
   };
 
@@ -96,9 +138,21 @@ const ComplaintForm = ({ navigation }) => {
         } else if (response.errorCode) {
           console.log('Camera error:', response.errorMessage);
         } else if (response.assets && response.assets.length > 0) {
-          const { uri, fileName } = response.assets[0];
-          console.log('Photo taken:', uri, fileName);
-          setUserImage({ uri, fileName });
+          const { uri, fileName, fileSize } = response.assets[0];
+          const newFileName = fileName;
+          setUserImage({ uri, fileName: newFileName, fileSize });
+
+          // Save photo details locally
+          try {
+            await AsyncStorage.setItem(
+              'capturedPhotos',
+              JSON.stringify([{ uri, fileName: newFileName, fileSize }]),
+            );
+            Alert.alert('Success', 'Photo saved locally.');
+          } catch (error) {
+            console.error('Error saving photo to local storage:', error);
+            Alert.alert('Error', 'Failed to save photo locally.');
+          }
         }
       }
     );
@@ -110,8 +164,8 @@ const ComplaintForm = ({ navigation }) => {
         type: [DocumentPicker.types.images, DocumentPicker.types.pdf],
       });
       if (result) {
-        const { name: documentName, uri: documentUri } = result;
-        setAttachmentDoc({ documentName, documentUri });
+        const { name: documentName, size: documentSize, type: documentType, uri: documentUri } = result;
+        setAttachmentDoc({ documentName, documentUri, documentSize, documentType });
       }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -122,7 +176,33 @@ const ComplaintForm = ({ navigation }) => {
     }
   };
 
+  const handleAddColony = async () => {
+    if (!newColony) {
+      Alert.alert('Error', 'Please enter the new colony name.');
+      return;
+    }
+
+    try {
+      console.log('Adding new colony:', newColony);
+      const response = await apiService.addColony({ LocalityID: localityID, Colony: newColony }, authToken);
+      console.log('Add colony response:', response);
+      if (response.success) {
+        Alert.alert('Success', 'New colony added successfully.');
+        setShowAddColony(false);
+        setNewColony('');
+        fetchColonies(localityID); // Refresh the colonies list
+      } else {
+        Alert.alert('Error', 'Failed to add new colony.');
+      }
+    } catch (error) {
+      console.error('Error adding new colony:', error);
+      Alert.alert('Error', 'Failed to add new colony.');
+    }
+  };
+
   const handleSubmit = async () => {
+    Alert.alert('Info', 'Submit button clicked');
+    console.log('Submit button clicked');
     if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
       Alert.alert('Error', 'Email must end with @gmail.com');
       return;
@@ -135,7 +215,7 @@ const ComplaintForm = ({ navigation }) => {
       attachmentDoc: formattedAttachmentDoc,
       userImage: formattedUserImage,
       location: location ? `${location.latitude},${location.longitude}` : null,
-      createdBy: userDetails.userID, // Set createdBy to userID
+      createdBy: userDetails.username, // Set createdBy to userID
       createdDate: new Date(),
       mobileNumber: userDetails.mobileNumber,
       complaintStatus,
@@ -143,20 +223,25 @@ const ComplaintForm = ({ navigation }) => {
       isAdmin: userDetails.isAdmin, // Add isAdmin field
       userID: userDetails.userID, // Add userID field
       complaintType, // Add complaintType field
-      docUrl: attachmentDoc ? `http://localhost:3000/uploads/docs/${formattedAttachmentDoc}` : null,
-      imageUrl: userImage ? `http://localhost:3000/uploads/images/${formattedUserImage}` : null,
+      docUrl: attachmentDoc ? `http://localhost:3000/uploads/${formattedAttachmentDoc}` : null,
+      imageUrl: userImage ? `http://localhost:3000/uploads/${formattedUserImage}` : null,
+      zoneID, // Add zoneID field
+      localityID, // Add localityID field
+      colony, // Add colony field
     };
 
     console.log('Data to be submitted:', data);
+    Alert.alert('Info', 'Data prepared for submission');
 
     try {
+      console.log('Calling API...');
       const response = await apiService.submitComplaint(data);
-      console.log(response);
+      console.log('API response:', response);
       Alert.alert('Success', `Complaint submitted successfully. Complaint ID: ${response.complaintID}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
-      navigation.navigate('Home');
+      navigation.replace('Home');
     } catch (error) {
       console.error('Error submitting complaint:', error);
-      Alert.alert('Error', 'Failed to submit complaint');
+      Alert.alert('Error', `Failed to submit complaint: ${error.message}`);
     }
   };
 
@@ -214,6 +299,68 @@ const ComplaintForm = ({ navigation }) => {
           editable={false}
         />
         <Button title="Refresh Location" onPress={fetchLocation} />
+        <Text style={AppStyles.label}>Zone</Text>
+        <Picker
+          selectedValue={zoneID}
+          onValueChange={itemValue => setZoneID(itemValue)}
+          style={AppStyles.picker}>
+          <Picker.Item label="Select Zone" value="" />
+          <Picker.Item label="Zone 1" value="1" />
+          <Picker.Item label="Zone 2" value="2" />
+          <Picker.Item label="Zone 3" value="3" />
+          <Picker.Item label="Zone 4" value="4" />
+        </Picker>
+        <Text style={AppStyles.label}>Locality Ward Sankhya</Text>
+        <Picker
+          selectedValue={localityID}
+          onValueChange={itemValue => setLocalityID(itemValue)}
+          style={AppStyles.picker}>
+          <Picker.Item label="Select Locality Ward" value="" />
+          {localities.map(loc => (
+            <Picker.Item
+              key={loc.LocalityID}
+              label={loc.Locality}
+              value={loc.LocalityID}
+            />
+          ))}
+        </Picker>
+        <Text style={AppStyles.label}>Colony</Text>
+        <Picker
+          selectedValue={colony}
+          onValueChange={itemValue => {
+            if (itemValue === 'addNewColony') {
+              setShowAddColony(true);
+            } else {
+              setShowAddColony(false);
+              setColony(itemValue);
+            }
+          }}
+          style={AppStyles.picker}>
+          <Picker.Item label="Select Colony" value="" />
+          {colonies.map(col => (
+            <Picker.Item
+              key={col.ColonyID}
+              label={col.Colony}
+              value={col.Colony}
+            />
+          ))}
+          <Picker.Item label="Add New Colony" value="addNewColony" />
+        </Picker>
+        {showAddColony && (
+          <View>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="Enter New Colony Name"
+              value={newColony}
+              onChangeText={setNewColony}
+            />
+            <TouchableOpacity
+              style={[AppStyles.button, AppStyles.probutton]}
+              onPress={handleAddColony}>
+              <Text style={AppStyles.buttonText}>Add Colony</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <Text style={AppStyles.label}>Document</Text>
         <TouchableOpacity style={AppStyles.button} onPress={handleDocumentPick}>
           <Text style={AppStyles.buttonText}>

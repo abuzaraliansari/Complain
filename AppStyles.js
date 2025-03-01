@@ -63,6 +63,32 @@ const AppStyles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  replyButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  closeButton: {
+    backgroundColor: '#f44336',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  replyButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   replyInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -80,17 +106,6 @@ const AppStyles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     marginRight: 10,
-  },
-  replyButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-  },
-  replyButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   adminReply: {
     alignSelf: 'flex-end',
@@ -213,20 +228,24 @@ const AppStyles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+    flexWrap: 'wrap',
   },
   displayCell: {
     fontSize: 16,
     color: '#333',
+    flex: 1,
   },
   displayCellHeader: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    flex: 1,
   },
   displayCellLink: {
     fontSize: 16,
     color: 'blue',
     fontWeight: 'bold',
+    flex: 1,
   },
   noDataText: {
     fontSize: 16,
@@ -292,22 +311,27 @@ const AppStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 5,
+    flexWrap: 'wrap',
   },
   complaintLabel: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+     textAlign: 'left',
+    flex: 1,
   },
   complaintValue: {
     fontSize: 16,
     color: '#333',
-    textAlign: 'left',
+    textAlign: 'right',
+    flex: 1,
   },
   complaintValueLink: {
     fontSize: 16,
     color: 'blue',
     fontWeight: 'bold',
     textAlign: 'left',
+    flex: 1,
   },
   documentContainer: {
     flexDirection: 'row',
@@ -318,6 +342,11 @@ const AppStyles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
     color: '#333',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
   },
 });
 

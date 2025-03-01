@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Alert, TouchableOpacity, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Animatable from 'react-native-animatable';
@@ -16,6 +16,7 @@ const ComplaintDetails = ({ navigation }) => {
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [complaintType, setComplaintType] = useState('');
   const [complaintStatus, setComplaintStatus] = useState('');
+  const [filterMobileNumber, setFilterMobileNumber] = useState('');
   const { userDetails, setCategoryID } = useContext(AuthContext);
 
   const fetchComplaints = async () => {
@@ -29,8 +30,9 @@ const ComplaintDetails = ({ navigation }) => {
       console.log("Complaint Status:", complaintStatus);
 
       const response = await apiService.getComplaints({
-        mobileNumber: userDetails.mobileNumber,
-        createdBy: userDetails.userID,
+        mobileNumber: userDetails.roles.includes('Admin') ? filterMobileNumber : userDetails.mobileNumber,
+        createdBy: userDetails.username,
+        isAdmin: userDetails.roles.includes('Admin'),
         startDate,
         endDate,
         complaintType,
@@ -48,7 +50,7 @@ const ComplaintDetails = ({ navigation }) => {
 
   useEffect(() => {
     fetchComplaints();
-  }, [startDate, endDate, complaintType, complaintStatus]);
+  }, [startDate, endDate, complaintType, complaintStatus, filterMobileNumber]);
 
   const handleViewDetails = (complaint) => {
     navigation.navigate('ComplaintDetailsPage', { complaint });
@@ -98,6 +100,17 @@ const ComplaintDetails = ({ navigation }) => {
             )}
           </View>
         </View>
+        {userDetails.roles.includes('Admin') && (
+          <View style={AppStyles.inputContainer}>
+            <Text style={AppStyles.label}>Filter by Mobile Number</Text>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="Enter Mobile Number"
+              value={filterMobileNumber}
+              onChangeText={setFilterMobileNumber}
+            />
+          </View>
+        )}
         <Text style={AppStyles.header}>Select Type And Status</Text>
         <View style={AppStyles.pickerContainer}>
           <View style={AppStyles.pickerBox}>
