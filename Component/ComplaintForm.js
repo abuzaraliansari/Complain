@@ -201,12 +201,41 @@ const ComplaintForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    Alert.alert('Info', 'Submit button clicked');
+    //Alert.alert('Info', 'Submit button clicked');
     console.log('Submit button clicked');
     if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
       Alert.alert('Error', 'Email must end with @gmail.com');
       return;
     }
+    if (!complaintType) {
+      Alert.alert('Error', 'Complaint Type cannot be null');
+      return;
+    }
+    if (!location) {
+      Alert.alert('Error', 'Location cannot be fetch. Please move to another place and try to fetch the location.');
+      return;
+    }
+    if (!zoneID) {
+      Alert.alert('Error', 'Zone cannot be null');
+      return;
+    }
+    if (!localityID) {
+      Alert.alert('Error', 'Locality Ward Sankhya cannot be null');
+      return;
+    }
+    if (!colony) {
+      Alert.alert('Error', 'Colony cannot be null');
+      return;
+    }
+    if (!attachmentDoc) {
+      Alert.alert('Error', 'Document cannot be null. Please upload the document.');
+      return;
+    }
+    if (!userImage) {
+      Alert.alert('Error', 'Photo cannot be null. Please click the photo.');
+      return;
+    }
+
     const formattedAttachmentDoc = attachmentDoc ? `${userDetails.userID}_${userDetails.mobileNumber}_${attachmentDoc.documentName}` : null;
     const formattedUserImage = userImage ? `${userDetails.userID}_${userDetails.mobileNumber}_${userImage.fileName}` : null;
     console.log('Formatted Attachment Doc:', formattedAttachmentDoc);
@@ -231,7 +260,7 @@ const ComplaintForm = ({ navigation }) => {
     };
 
     console.log('Data to be submitted:', data);
-    Alert.alert('Info', 'Data prepared for submission');
+    //Alert.alert('Info', 'Data prepared for submission');
 
     try {
       console.log('Calling API...');

@@ -12,21 +12,21 @@ const AppStyles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000', // Changed to black
     textAlign: 'center',
     marginBottom: 20,
   },
   header: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000', // Changed to black
     marginBottom: 10,
   },
   Sublabel: {
     fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 8,
-    color: '#000',
+    color: '#000', // Changed to black
     textAlign: 'center',
     marginBottom: 20,
     padding: 10,
@@ -38,7 +38,7 @@ const AppStyles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 8,
-    color: '#000',
+    color: '#000', // Changed to black
   },
   input: {
     borderWidth: 1,
@@ -48,7 +48,7 @@ const AppStyles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     marginBottom: 15,
-    color: '#000',
+    color: '#000', // Changed to black
   },
   button: {
     backgroundColor: '#4CAF50',
@@ -106,6 +106,7 @@ const AppStyles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     marginRight: 10,
+    color: '#000', // Changed to black
   },
   adminReply: {
     alignSelf: 'flex-end',
@@ -125,11 +126,11 @@ const AppStyles = StyleSheet.create({
   },
   replyText: {
     fontSize: 16,
-    color: '#333',
+    color: '#000', // Changed to black
   },
   replyDate: {
     fontSize: 12,
-    color: '#999',
+    color: '#000', // Changed to black
     textAlign: 'right',
     marginTop: 5,
   },
@@ -142,10 +143,11 @@ const AppStyles = StyleSheet.create({
   attachmentHeader: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#000', // Changed to black
   },
   attachmentText: {
     fontSize: 14,
-    color: '#555',
+    color: '#000', // Changed to black
   },
   loginContainer: {
     flex: 1,
@@ -160,7 +162,7 @@ const AppStyles = StyleSheet.create({
   loginTitle: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000', // Changed to black
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -176,7 +178,7 @@ const AppStyles = StyleSheet.create({
     width: '80%',
     textAlign: 'center',
     justifyContent: 'center',
-    color: '#000',
+    color: '#000', // Changed to black
   },
   loginButton: {
     backgroundColor: '#4CAF50',
@@ -218,7 +220,7 @@ const AppStyles = StyleSheet.create({
   displayHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000', // Changed to black
     marginBottom: 10,
   },
   displayRow: {
@@ -232,13 +234,13 @@ const AppStyles = StyleSheet.create({
   },
   displayCell: {
     fontSize: 16,
-    color: '#333',
+    color: '#000', // Changed to black
     flex: 1,
   },
   displayCellHeader: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000', // Changed to black
     flex: 1,
   },
   displayCellLink: {
@@ -249,7 +251,7 @@ const AppStyles = StyleSheet.create({
   },
   noDataText: {
     fontSize: 16,
-    color: '#999',
+    color: '#000', // Changed to black
     textAlign: 'center',
     marginTop: 20,
   },
@@ -269,12 +271,12 @@ const AppStyles = StyleSheet.create({
   },
   datePickerLabel: {
     fontSize: 16,
-    color: '#333',
+    color: '#000', // Changed to black
     marginBottom: 5,
   },
   datePickerText: {
     fontSize: 16,
-    color: '#333',
+    color: '#000', // Changed to black
   },
   pickerContainer: {
     flexDirection: 'row',
@@ -292,7 +294,7 @@ const AppStyles = StyleSheet.create({
   },
   pickerLabel: {
     fontSize: 16,
-    color: '#333',
+    color: '#000', // Changed to black
     marginBottom: 5,
   },
   picker: {
@@ -316,13 +318,13 @@ const AppStyles = StyleSheet.create({
   complaintLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
-     textAlign: 'left',
+    color: '#000', // Changed to black
+    textAlign: 'left',
     flex: 1,
   },
   complaintValue: {
     fontSize: 16,
-    color: '#333',
+    color: '#000', // Changed to black
     textAlign: 'right',
     flex: 1,
   },
@@ -341,7 +343,7 @@ const AppStyles = StyleSheet.create({
   documentText: {
     marginLeft: 10,
     fontSize: 16,
-    color: '#333',
+    color: '#000', // Changed to black
   },
   buttonContainer: {
     flexDirection: 'row',

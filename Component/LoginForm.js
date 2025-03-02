@@ -32,7 +32,8 @@ const LoginForm = ({ navigation }) => {
         });
         console.log('User details id:', response.user.userID);
         console.log('Roles:', response.user.roles);
-        navigation.replace('Home');
+        
+        navigation.navigate('Home');
       } else {
         Alert.alert('Error', response.message);
       }
