@@ -29,6 +29,26 @@ const apiService = {
       throw error;
     }
   },
+  submitFiles: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/submitFiles`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  updateComplaintStatus: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/complaintsstatus`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
   getComplaints: async (data) => {
     try {
       const response = await axios.post(`${API_URL}/auth/complain`, data);
@@ -105,15 +125,7 @@ const apiService = {
     } catch (error) {
       throw error;
     }
-  },
-  updateComplaintStatus: async (data) => {
-    try {
-      const response = await axios.post(`${API_URL}/auth/complaintsstatus`, data);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+  }
 };
 
 export default apiService;

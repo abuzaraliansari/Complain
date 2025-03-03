@@ -201,7 +201,6 @@ const ComplaintForm = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    //Alert.alert('Info', 'Submit button clicked');
     console.log('Submit button clicked');
     if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
       Alert.alert('Error', 'Email must end with @gmail.com');
@@ -235,39 +234,65 @@ const ComplaintForm = ({ navigation }) => {
       Alert.alert('Error', 'Photo cannot be null. Please click the photo.');
       return;
     }
-
+  
     const formattedAttachmentDoc = attachmentDoc ? `${userDetails.userID}_${userDetails.mobileNumber}_${attachmentDoc.documentName}` : null;
     const formattedUserImage = userImage ? `${userDetails.userID}_${userDetails.mobileNumber}_${userImage.fileName}` : null;
     console.log('Formatted Attachment Doc:', formattedAttachmentDoc);
-    const data = {
+    const complaintData = {
       description,
-      attachmentDoc: formattedAttachmentDoc,
-      userImage: formattedUserImage,
       location: location ? `${location.latitude},${location.longitude}` : null,
-      createdBy: userDetails.username, // Set createdBy to userID
+      createdBy: userDetails.username,
       createdDate: new Date(),
       mobileNumber: userDetails.mobileNumber,
       complaintStatus,
       ipAddress,
-      isAdmin: userDetails.isAdmin, // Add isAdmin field
-      userID: userDetails.userID, // Add userID field
-      complaintType, // Add complaintType field
-      docUrl: attachmentDoc ? `http://localhost:3000/uploads/${formattedAttachmentDoc}` : null,
-      imageUrl: userImage ? `http://localhost:3000/uploads/${formattedUserImage}` : null,
-      zoneID, // Add zoneID field
-      localityID, // Add localityID field
-      colony, // Add colony field
+      isAdmin: userDetails.isAdmin,
+      userID: userDetails.userID,
+      complaintType,
+      zoneID,
+      localityID,
+      colony,
     };
-
-    console.log('Data to be submitted:', data);
-    //Alert.alert('Info', 'Data prepared for submission');
-
+  
     try {
-      console.log('Calling API...');
-      const response = await apiService.submitComplaint(data);
-      console.log('API response:', response);
-      Alert.alert('Success', `Complaint submitted successfully. Complaint ID: ${response.complaintID}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
-      navigation.replace('Home');
+      console.log('Calling submitComplaint API...');
+      const complaintResponse = await apiService.submitComplaint(complaintData);
+      console.log('Complaint API response:', complaintResponse);
+  
+      if (complaintResponse.success) {
+        const complaintID = complaintResponse.complaintID;
+        const filesData = new FormData();
+        filesData.append('userID', userDetails.userID);
+        filesData.append('complaintID', complaintID);
+        filesData.append('createdBy', userDetails.username);
+        if (attachmentDoc) {
+          filesData.append('attachmentDoc', {
+            uri: attachmentDoc.documentUri,
+            type: attachmentDoc.documentType,
+            name: attachmentDoc.documentName,
+          });
+        }
+        if (userImage) {
+          filesData.append('userImage', {
+            uri: userImage.uri,
+            type: 'image/jpeg',
+            name: userImage.fileName,
+          });
+        }
+  
+        console.log('Calling submitFiles API...');
+        const filesResponse = await apiService.submitFiles(filesData);
+        console.log('Files API response:', filesResponse);
+  
+        if (filesResponse.success) {
+          Alert.alert('Success', `Complaint submitted successfully. Complaint ID: ${complaintID}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
+          navigation.replace('Home');
+        } else {
+          Alert.alert('Error', 'Failed to submit files');
+        }
+      } else {
+        Alert.alert('Error', 'Failed to submit complaint');
+      }
     } catch (error) {
       console.error('Error submitting complaint:', error);
       Alert.alert('Error', `Failed to submit complaint: ${error.message}`);
