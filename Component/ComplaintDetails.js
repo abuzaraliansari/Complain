@@ -120,7 +120,7 @@ const ComplaintDetails = ({ navigation }) => {
               onValueChange={(itemValue) => setComplaintType(itemValue)}
               style={AppStyles.picker}
             >
-              <Picker.Item label="Type" value="" />
+              <Picker.Item label="All" value="" />
               <Picker.Item label="Water" value="water" />
               <Picker.Item label="Road" value="road" />
               <Picker.Item label="Electricity" value="electricity" />
@@ -135,7 +135,7 @@ const ComplaintDetails = ({ navigation }) => {
               onValueChange={(itemValue) => setComplaintStatus(itemValue)}
               style={AppStyles.picker}
             >
-              <Picker.Item label="Status" value="" />
+              <Picker.Item label="All" value="" />
               <Picker.Item label="Open" value="Open" />
               <Picker.Item label="Closed" value="Closed" />
             </Picker>
