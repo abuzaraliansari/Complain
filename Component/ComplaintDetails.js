@@ -145,10 +145,16 @@ const ComplaintDetails = ({ navigation }) => {
         {complaints.length > 0 ? (
           complaints.map((complaint) => (
             <Animatable.View key={complaint.ComplaintID} animation="fadeInUp" style={AppStyles.complaintBox}>
-              <View style={AppStyles.complaintRow}>
+              {/* <View style={AppStyles.complaintRow}>
                 <Text style={AppStyles.complaintLabel}>Complaint ID:</Text>
                 <TouchableOpacity onPress={() => handleViewDetails(complaint)}>
                   <Text style={AppStyles.complaintValueLink}>{complaint.ComplaintID}</Text>
+                </TouchableOpacity>
+              </View> */}
+              <View style={AppStyles.complaintRow}>
+                <Text style={AppStyles.complaintLabel}>Registration No:</Text>
+                <TouchableOpacity onPress={() => handleViewDetails(complaint)}>
+                  <Text style={AppStyles.complaintValueLink}>{complaint.ComplaintRegistrationNo}</Text>
                 </TouchableOpacity>
               </View>
               <View style={AppStyles.complaintRow}>

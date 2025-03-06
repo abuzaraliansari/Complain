@@ -8,32 +8,41 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
   const { complaint } = route.params;
   const { userDetails } = useContext(AuthContext);
 
-  const handleCloseComplaint = async () => {
+  const handleUpdateComplaintStatus = async (status) => {
     try {
-      console.log('Closing complaint:', complaint.ComplaintID);
-      await apiService.updateComplaintStatus({
+      console.log(`${status === 'Closed' ? 'Closing' : 'Opening'} complaint:`, complaint.ComplaintID);
+      const apiMethod = status === 'Closed' ? apiService.updateComplaintStatus : apiService.updateComplaintStatusOpen;
+      await apiMethod({
         complaintno: complaint.ComplaintID,
-        status: 'Closed',
+        status,
         modifiedBy: userDetails.username,
       });
-      Alert.alert('Success', 'Complaint closed successfully');
+      Alert.alert('Success', `Complaint ${status === 'Closed' ? 'closed' : 'opened'} successfully`);
       navigation.replace('Home');
     } catch (error) {
-      console.error('Error closing complaint:', error);
-      Alert.alert('Error', 'Failed to close complaint');
+      console.error(`Error ${status === 'Closed' ? 'closing' : 'opening'} complaint:`, error);
+      Alert.alert('Error', `Failed to ${status === 'Closed' ? 'close' : 'open'} complaint`);
     }
   };
 
-  const confirmCloseComplaint = () => {
+  const confirmUpdateComplaintStatus = (status) => {
     Alert.alert(
-      'Close Complaint',
-      'Are you sure you want to close this complaint?',
+      `${status === 'Closed' ? 'Close' : 'Open'} Complaint`,
+      `Are you sure you want to ${status === 'Closed' ? 'close' : 'open'} this complaint?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'OK', onPress: handleCloseComplaint },
+        { text: 'OK', onPress: () => handleUpdateComplaintStatus(status) },
       ],
       { cancelable: false }
     );
+  };
+
+  const handleReplyNavigation = () => {
+    if (complaint.ComplaintsStatus === 'Closed') {
+      Alert.alert('Error', 'The complaint is closed. Please open it before replying.');
+    } else {
+      navigation.navigate('ComplaintReplyDetails', { complaintno: complaint.ComplaintID });
+    }
   };
 
   return (
@@ -41,6 +50,11 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
       <View style={AppStyles.displayContent}>
         <Text style={AppStyles.displayHeader}>Complaint Details</Text>
         <View style={AppStyles.displayTable}>
+        <View style={AppStyles.displayRow}>
+            <Text style={AppStyles.displayCellHeader}>Complaint ID</Text>
+            <Text style={AppStyles.displayCell}>{complaint.ComplaintID || 'N/A'}</Text>
+          </View>
+
           <View style={AppStyles.displayRow}>
             <Text style={AppStyles.displayCellHeader}>User ID</Text>
             <Text style={AppStyles.displayCell}>{complaint.UserID || 'N/A'}</Text>
@@ -91,11 +105,11 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
           </View>
         </View>
         <View style={AppStyles.buttonContainer}>
-          <TouchableOpacity style={AppStyles.replyButton} onPress={() => navigation.navigate('ComplaintReplyDetails', { complaintno: complaint.ComplaintID })}>
+          <TouchableOpacity style={AppStyles.replyButton} onPress={handleReplyNavigation}>
             <Text style={AppStyles.replyButtonText}>Reply</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={AppStyles.closeButton} onPress={confirmCloseComplaint}>
-            <Text style={AppStyles.closeButtonText}>Close Complaint</Text>
+          <TouchableOpacity style={AppStyles.closeButton} onPress={() => confirmUpdateComplaintStatus(complaint.ComplaintsStatus === 'Open' ? 'Closed' : 'Open')}>
+            <Text style={AppStyles.closeButtonText}>{complaint.ComplaintsStatus === 'Open' ? 'Close Complaint' : 'Open Complaint'}</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={AppStyles.button} onPress={() => navigation.goBack()}>

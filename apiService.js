@@ -20,6 +20,24 @@ const apiService = {
       throw error;
     }
   },
+
+  sendOTP: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/sendOTP`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  verifyOTP: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/verifyOTP`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   submitComplaint: async (data) => {
     try {
       console.log('Data being sent to API:', data);
@@ -44,6 +62,15 @@ const apiService = {
   updateComplaintStatus: async (data) => {
     try {
       const response = await axios.post(`${API_URL}/auth/complaintsstatus`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateComplaintStatusOpen: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/complaintsstatusopen`, data);
       return response.data;
     } catch (error) {
       throw error;

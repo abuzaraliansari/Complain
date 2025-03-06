@@ -200,104 +200,105 @@ const ComplaintForm = ({ navigation }) => {
     }
   };
 
-  const handleSubmit = async () => {
-    console.log('Submit button clicked');
-    if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
-      Alert.alert('Error', 'Email must end with @gmail.com');
-      return;
-    }
-    if (!complaintType) {
-      Alert.alert('Error', 'Complaint Type cannot be null');
-      return;
-    }
-    if (!location) {
-      Alert.alert('Error', 'Location cannot be fetch. Please move to another place and try to fetch the location.');
-      return;
-    }
-    if (!zoneID) {
-      Alert.alert('Error', 'Zone cannot be null');
-      return;
-    }
-    if (!localityID) {
-      Alert.alert('Error', 'Locality Ward Sankhya cannot be null');
-      return;
-    }
-    if (!colony) {
-      Alert.alert('Error', 'Colony cannot be null');
-      return;
-    }
-    if (!attachmentDoc) {
-      Alert.alert('Error', 'Document cannot be null. Please upload the document.');
-      return;
-    }
-    if (!userImage) {
-      Alert.alert('Error', 'Photo cannot be null. Please click the photo.');
-      return;
-    }
-  
-    const formattedAttachmentDoc = attachmentDoc ? `${userDetails.userID}_${userDetails.mobileNumber}_${attachmentDoc.documentName}` : null;
-    const formattedUserImage = userImage ? `${userDetails.userID}_${userDetails.mobileNumber}_${userImage.fileName}` : null;
-    console.log('Formatted Attachment Doc:', formattedAttachmentDoc);
-    const complaintData = {
-      description,
-      location: location ? `${location.latitude},${location.longitude}` : null,
-      createdBy: userDetails.username,
-      createdDate: new Date(),
-      mobileNumber: userDetails.mobileNumber,
-      complaintStatus,
-      ipAddress,
-      isAdmin: userDetails.isAdmin,
-      userID: userDetails.userID,
-      complaintType,
-      zoneID,
-      localityID,
-      colony,
-    };
-  
-    try {
-      console.log('Calling submitComplaint API...');
-      const complaintResponse = await apiService.submitComplaint(complaintData);
-      console.log('Complaint API response:', complaintResponse);
-  
-      if (complaintResponse.success) {
-        const complaintID = complaintResponse.complaintID;
-        const filesData = new FormData();
-        filesData.append('userID', userDetails.userID);
-        filesData.append('complaintID', complaintID);
-        filesData.append('createdBy', userDetails.username);
-        if (attachmentDoc) {
-          filesData.append('attachmentDoc', {
-            uri: attachmentDoc.documentUri,
-            type: attachmentDoc.documentType,
-            name: attachmentDoc.documentName,
-          });
-        }
-        if (userImage) {
-          filesData.append('userImage', {
-            uri: userImage.uri,
-            type: 'image/jpeg',
-            name: userImage.fileName,
-          });
-        }
-  
-        console.log('Calling submitFiles API...');
-        const filesResponse = await apiService.submitFiles(filesData);
-        console.log('Files API response:', filesResponse);
-  
-        if (filesResponse.success) {
-          Alert.alert('Success', `Complaint submitted successfully. Complaint ID: ${complaintID}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
-          navigation.replace('Home');
-        } else {
-          Alert.alert('Error', 'Failed to submit files');
-        }
-      } else {
-        Alert.alert('Error', 'Failed to submit complaint');
-      }
-    } catch (error) {
-      console.error('Error submitting complaint:', error);
-      Alert.alert('Error', `Failed to submit complaint: ${error.message}`);
-    }
+const handleSubmit = async () => {
+  console.log('Submit button clicked');
+  if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
+    Alert.alert('Error', 'Email must end with @gmail.com');
+    return;
+  }
+  if (!complaintType) {
+    Alert.alert('Error', 'Complaint Type cannot be null');
+    return;
+  }
+  if (!location) {
+    Alert.alert('Error', 'Location cannot be fetch. Please move to another place and try to fetch the location.');
+    return;
+  }
+  if (!zoneID) {
+    Alert.alert('Error', 'Zone cannot be null');
+    return;
+  }
+  if (!localityID) {
+    Alert.alert('Error', 'Locality Ward Sankhya cannot be null');
+    return;
+  }
+  if (!colony) {
+    Alert.alert('Error', 'Colony cannot be null');
+    return;
+  }
+  // if (!attachmentDoc) {
+  //   Alert.alert('Error', 'Document cannot be null. Please upload the document.');
+  //   return;
+  // }
+  // if (!userImage) {
+  //   Alert.alert('Error', 'Photo cannot be null. Please click the photo.');
+  //   return;
+  // }
+
+  const formattedAttachmentDoc = attachmentDoc ? `${userDetails.userID}_${userDetails.mobileNumber}_${attachmentDoc.documentName}` : null;
+  const formattedUserImage = userImage ? `${userDetails.userID}_${userDetails.mobileNumber}_${userImage.fileName}` : null;
+  console.log('Formatted Attachment Doc:', formattedAttachmentDoc);
+  const complaintData = {
+    description,
+    location: location ? `${location.latitude},${location.longitude}` : null,
+    createdBy: userDetails.username,
+    createdDate: new Date(),
+    mobileNumber: userDetails.mobileNumber,
+    complaintStatus,
+    ipAddress,
+    isAdmin: userDetails.isAdmin,
+    userID: userDetails.userID,
+    complaintType,
+    zoneID,
+    localityID,
+    colony,
   };
+
+  try {
+    console.log('Calling submitComplaint API...');
+    const complaintResponse = await apiService.submitComplaint(complaintData);
+    console.log('Complaint API response:', complaintResponse);
+
+    if (complaintResponse.success) {
+      const complaintID = complaintResponse.complaintID;
+      const complaintRegistrationNo = complaintResponse.complaintRegistrationNo;
+      const filesData = new FormData();
+      filesData.append('userID', userDetails.userID);
+      filesData.append('complaintID', complaintID);
+      filesData.append('createdBy', userDetails.username);
+      if (attachmentDoc) {
+        filesData.append('attachmentDoc', {
+          uri: attachmentDoc.documentUri,
+          type: attachmentDoc.documentType,
+          name: attachmentDoc.documentName,
+        });
+      }
+      if (userImage) {
+        filesData.append('userImage', {
+          uri: userImage.uri,
+          type: 'image/jpeg',
+          name: userImage.fileName,
+        });
+      }
+
+      console.log('Calling submitFiles API...');
+      const filesResponse = await apiService.submitFiles(filesData);
+      console.log('Files API response:', filesResponse);
+
+      if (filesResponse.success) {
+        Alert.alert('Success', `Complaint submitted successfully. Complaint Registration No: ${complaintRegistrationNo}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
+        navigation.replace('Home');
+      } else {
+        Alert.alert('Error', 'Failed to submit files');
+      }
+    } else {
+      Alert.alert('Error', 'Failed to submit complaint');
+    }
+  } catch (error) {
+    console.error('Error submitting complaint:', error);
+    Alert.alert('Error', `Failed to submit complaint: ${error.message}`);
+  }
+};
 
   return (
     <ScrollView contentContainerStyle={AppStyles.scrollContainer}>

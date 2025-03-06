@@ -22,18 +22,19 @@ const LoginForm = ({ navigation }) => {
       console.log('Received response:', response);
       if (response.success) {
         setAuthToken(response.token);
-        setUserDetails({
+        const userDetails = {
           userID: response.user.userID,
           username: response.user.username,
           mobileNumber: response.user.mobileNumber,
           emailID: response.user.emailID,
           roles: response.user.roles,
           isActive: response.user.isActive,
-        });
+        };
+        setUserDetails(userDetails);
         console.log('User details id:', response.user.userID);
         console.log('Roles:', response.user.roles);
         
-        navigation.navigate('Home');
+        navigation.replace('Home', { userDetails });
       } else {
         Alert.alert('Error', response.message);
       }
@@ -46,7 +47,7 @@ const LoginForm = ({ navigation }) => {
   return (
     <View style={AppStyles.loginContainer}>
       <Text style={AppStyles.loginTitle}>Login</Text>
-      <Text style={AppStyles.Sublabel}>Password: First 4 digits of Mobile No + Last 4 digits of Aadhaar No</Text>
+        {/* <Text style={AppStyles.Sublabel}>Password: First 4 digits of Mobile No + Last 4 digits of Aadhaar No</Text> */}
       <TextInput
         style={AppStyles.loginInput}
         placeholder="Username or Mobile Number"
