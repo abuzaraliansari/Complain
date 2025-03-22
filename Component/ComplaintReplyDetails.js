@@ -18,6 +18,7 @@ const ComplaintReplyDetails = ({ route, navigation }) => {
     try {
       const response = await apiService.getComplaintReplies({ complaintno });
       setReplies(response);
+      console.log('Fetched replies:', response);
     } catch (error) {
       console.error('Error fetching replies:', error);
       Alert.alert('Error', 'Failed to fetch replies');
@@ -59,39 +60,24 @@ const ComplaintReplyDetails = ({ route, navigation }) => {
     }
   };
 
-  const handleDocumentPick = async () => {
+  const handleCloseComplaint = async () => {
     try {
-      const result = await DocumentPicker.pickSingle({
-        type: [DocumentPicker.types.images, DocumentPicker.types.pdf],
+      console.log('Closing complaint:', complaintno);
+      await apiService.updateComplaintStatus({
+        complaintno,
+        status: 'Closed',
+        modifiedBy: userDetails.username,
       });
-      if (result) {
-        const { name: documentName, uri: documentUri } = result;
-        setUploadedImage({ documentName, documentUri });
-      }
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        Alert.alert('Cancelled', 'Document selection was cancelled.');
-      } else {
-        Alert.alert('Error', 'Document selection failed.');
-      }
+      Alert.alert('Success', 'Complaint closed successfully');
+      navigation.replace('ComplaintStatus', {
+        CreatedDate: complaint.CreatedDate,
+        ComplaintID: complaint.ComplaintID,
+        source: 'Home',
+      });
+    } catch (error) {
+      console.error('Error closing complaint:', error);
+      Alert.alert('Error', 'Failed to close complaint');
     }
-  };
-
-  const handleTakePhoto = async () => {
-    launchCamera(
-      { mediaType: 'photo', saveToPhotos: true },
-      async (response) => {
-        if (response.didCancel) {
-          console.log('User cancelled camera');
-        } else if (response.errorCode) {
-          console.log('Camera error:', response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          const { uri, fileName } = response.assets[0];
-          console.log('Photo taken:', uri, fileName);
-          setUploadedImage({ uri, fileName });
-        }
-      }
-    );
   };
 
   useEffect(() => {
@@ -105,7 +91,9 @@ const ComplaintReplyDetails = ({ route, navigation }) => {
         {replies.map((reply, index) => (
           <View key={index} style={reply.IsAdmin ? AppStyles.adminReply : AppStyles.userReply}>
             <Text style={AppStyles.replyText}>{reply.ReplyDescription}</Text>
-            <Text style={AppStyles.replyDate}>{new Date(reply.ReplyDate).toLocaleString()}</Text>
+            <Text style={AppStyles.replyDate}>
+              <Text style={AppStyles.replyBy}>By: {reply.ReplyBy}</Text> | {new Date(reply.ReplyDate).toLocaleString()}
+            </Text>
             {reply.ImageUrl && (
               <Image source={{ uri: reply.ImageUrl }} style={AppStyles.imagePreview} />
             )}
@@ -122,16 +110,13 @@ const ComplaintReplyDetails = ({ route, navigation }) => {
         <TouchableOpacity style={AppStyles.replyButton} onPress={handleReplySubmit}>
           <Text style={AppStyles.replyButtonText}>Reply</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={AppStyles.replyButton} onPress={handleDocumentPick}>
-          <Text style={AppStyles.replyButtonText}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={AppStyles.replyButton} onPress={handleTakePhoto}>
-          <Text style={AppStyles.replyButtonText}>📷</Text>
-        </TouchableOpacity> */}
       </View>
       {uploadedImage && (
         <Image source={{ uri: uploadedImage.uri }} style={AppStyles.imagePreview} />
       )}
+      <TouchableOpacity style={AppStyles.closeButton} onPress={handleCloseComplaint}>
+        <Text style={AppStyles.closeButtonText}>Close Complaint</Text>
+      </TouchableOpacity>
     </View>
   );
 };

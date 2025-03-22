@@ -8,25 +8,27 @@ const AppStyles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#000', // Changed to black
+    color: '#000',
     textAlign: 'center',
     marginBottom: 20,
   },
   header: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#000', // Changed to black
+    color: '#000',
     marginBottom: 10,
   },
   Sublabel: {
     fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 8,
-    color: '#000', // Changed to black
+    color: '#000',
     textAlign: 'center',
     marginBottom: 20,
     padding: 10,
@@ -38,7 +40,7 @@ const AppStyles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 8,
-    color: '#000', // Changed to black
+    color: '#000',
   },
   input: {
     borderWidth: 1,
@@ -48,7 +50,7 @@ const AppStyles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     marginBottom: 15,
-    color: '#000', // Changed to black
+    color: '#000',
   },
   button: {
     backgroundColor: '#4CAF50',
@@ -106,7 +108,7 @@ const AppStyles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     marginRight: 10,
-    color: '#000', // Changed to black
+    color: '#000',
   },
   adminReply: {
     alignSelf: 'flex-end',
@@ -126,14 +128,19 @@ const AppStyles = StyleSheet.create({
   },
   replyText: {
     fontSize: 16,
-    color: '#000', // Changed to black
+    color: '#000',
+  },
+  replyBy: {
+    fontWeight: 'bold', // Make the text bold
+    fontStyle: 'italic', // Make the text italic
+    color: '#888', // Light gray color
   },
   replyDate: {
     fontSize: 12,
-    color: '#000', // Changed to black
-    textAlign: 'right',
+    color: '#888', // Light gray color for the date
     marginTop: 5,
   },
+
   attachmentContainer: {
     padding: 10,
     backgroundColor: '#f9f9f9',
@@ -143,11 +150,11 @@ const AppStyles = StyleSheet.create({
   attachmentHeader: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000', // Changed to black
+    color: '#000',
   },
   attachmentText: {
     fontSize: 14,
-    color: '#000', // Changed to black
+    color: '#000',
   },
   loginContainer: {
     flex: 1,
@@ -162,7 +169,7 @@ const AppStyles = StyleSheet.create({
   loginTitle: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#000', // Changed to black
+    color: '#000',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -178,7 +185,7 @@ const AppStyles = StyleSheet.create({
     width: '80%',
     textAlign: 'center',
     justifyContent: 'center',
-    color: '#000', // Changed to black
+    color: '#000',
   },
   loginButton: {
     backgroundColor: '#4CAF50',
@@ -220,7 +227,7 @@ const AppStyles = StyleSheet.create({
   displayHeader: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#000', // Changed to black
+    color: '#000',
     marginBottom: 10,
   },
   displayRow: {
@@ -234,13 +241,13 @@ const AppStyles = StyleSheet.create({
   },
   displayCell: {
     fontSize: 16,
-    color: '#000', // Changed to black
+    color: '#000',
     flex: 1,
   },
   displayCellHeader: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000', // Changed to black
+    color: '#000',
     flex: 1,
   },
   displayCellLink: {
@@ -251,7 +258,7 @@ const AppStyles = StyleSheet.create({
   },
   noDataText: {
     fontSize: 16,
-    color: '#000', // Changed to black
+    color: '#000',
     textAlign: 'center',
     marginTop: 20,
   },
@@ -271,12 +278,13 @@ const AppStyles = StyleSheet.create({
   },
   datePickerLabel: {
     fontSize: 16,
-    color: '#000', // Changed to black
+    color: '#000',
     marginBottom: 5,
   },
   datePickerText: {
-    fontSize: 16,
-    color: '#000', // Changed to black
+    fontSize: 14,
+    color: '#333',
+    padding: 5,
   },
   pickerContainer: {
     flexDirection: 'row',
@@ -294,7 +302,7 @@ const AppStyles = StyleSheet.create({
   },
   pickerLabel: {
     fontSize: 16,
-    color: '#000', // Changed to black
+    color: '#000',
     marginBottom: 5,
   },
   picker: {
@@ -315,16 +323,10 @@ const AppStyles = StyleSheet.create({
     marginBottom: 5,
     flexWrap: 'wrap',
   },
-  complaintLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000', // Changed to black
-    textAlign: 'left',
-    flex: 1,
-  },
+
   complaintValue: {
     fontSize: 16,
-    color: '#000', // Changed to black
+    color: '#000',
     textAlign: 'right',
     flex: 1,
   },
@@ -343,12 +345,155 @@ const AppStyles = StyleSheet.create({
   documentText: {
     marginLeft: 10,
     fontSize: 16,
-    color: '#000', // Changed to black
+    color: '#000',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
+  },
+  qrCode: {
+    width: 200,
+    height: 200,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#000',
+  },
+  qrCodeContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 10,
+    borderRadius: 8,
+  },
+  datePickerHeading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 10,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  pickerWrapper: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    marginHorizontal: 5,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+  },
+  picker1: {
+    height: 10,
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#333',
+  },
+  datePickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  datePickerBox: {
+    flex: 1,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#333',
+    padding: 12,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    margin: 10,
+    color: '#000',
+    height: 50,
+    width: '82%',
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 10,
+    color: '#000',
+  },
+  complaintBox: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginVertical: 5,
+    backgroundColor: '#f9f9f9',
+  },
+  complaintRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  complaintLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'left',
+    flex: 1,
+  },
+  complaintValueLink: {
+    color: 'blue',
+    textDecorationLine: 'underline',
+  },
+
+  inputt: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    marginBottom: 15,
+    color: '#000', // Changed to black
+  },
+
+  newFilterButton: {
+    backgroundColor: 'skyblue',
+    padding: 5,
+    borderWidth: 2,
+    borderColor: 'skyblue',
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
+  newFilterButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

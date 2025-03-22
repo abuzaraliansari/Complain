@@ -20,7 +20,6 @@ const apiService = {
       throw error;
     }
   },
-
   sendOTP: async (data) => {
     try {
       const response = await axios.post(`${API_URL}/auth/sendOTP`, data);
@@ -37,7 +36,6 @@ const apiService = {
       throw error;
     }
   },
-
   submitComplaint: async (data) => {
     try {
       console.log('Data being sent to API:', data);
@@ -67,7 +65,6 @@ const apiService = {
       throw error;
     }
   },
-
   updateComplaintStatusOpen: async (data) => {
     try {
       const response = await axios.post(`${API_URL}/auth/complaintsstatusopen`, data);
@@ -148,6 +145,14 @@ const apiService = {
           Authorization: `Bearer ${token}`
         }
       });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getUsers: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/getUsers`, data);
       return response.data;
     } catch (error) {
       throw error;

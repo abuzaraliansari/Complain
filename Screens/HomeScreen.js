@@ -25,20 +25,28 @@ const HomeScreen = ({ navigation, route }) => {
   };
 
   const handleComplain = () => {
-    navigation.navigate('Complain');
+    navigation.navigate('Location');
   };
 
   const handleComplainStatus = () => {
-    navigation.navigate('ComplaintDetails');
+    navigation.navigate('ComplaintStatus');
   };
 
-  const handleComplainReply = () => {
-    navigation.navigate('ComplaintReplyDetails');
+  const Complain = () => {
+    navigation.navigate('Complain');
+  };
+
+  const handlePayment = () => {
+    navigation.navigate('Payment');
+  };
+
+  const handleEditUser = () => {
+    navigation.navigate('UserListScreen');
   };
 
   return (
     <View style={AppStyles.container}>
-      <Text style={AppStyles.title}>Welcome {userDetails.roles.includes('Admin') ? 'Admin' : 'User'} {userDetails.username}</Text>
+      <Text style={AppStyles.title}>Welcome {userDetails.username}</Text>
       {!userDetails.roles.includes('Admin') && (
         <TouchableOpacity style={AppStyles.button} onPress={handleComplain}>
           <Text style={AppStyles.buttonText}>Complain</Text>
@@ -47,9 +55,17 @@ const HomeScreen = ({ navigation, route }) => {
       <TouchableOpacity style={AppStyles.button} onPress={handleComplainStatus}>
         <Text style={AppStyles.buttonText}>Complain Status</Text>
       </TouchableOpacity>
-      {/* <TouchableOpacity style={AppStyles.button} onPress={handleComplainReply}>
-        <Text style={AppStyles.buttonText}>Complain Reply</Text>
-      </TouchableOpacity> */}
+      {!userDetails.roles.includes('Admin') && (
+        <>
+          <TouchableOpacity style={AppStyles.button} onPress={Complain}>
+            <Text style={AppStyles.buttonText}>Complain With Out Location</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={AppStyles.button} onPress={handlePayment}>
+            <Text style={AppStyles.buttonText}>Payment</Text>
+          </TouchableOpacity>
+        </>
+      )}
+
       <TouchableOpacity style={AppStyles.button} onPress={handleLogout}>
         <Text style={AppStyles.buttonText}>Logout</Text>
       </TouchableOpacity>

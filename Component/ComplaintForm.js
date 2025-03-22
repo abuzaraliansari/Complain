@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Button, Alert, Image, ScrollView, PermissionsAndroid, Platform } from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
+import { View, Text, TextInput, TouchableOpacity, Alert, Image, ScrollView, PermissionsAndroid, Platform } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera } from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';
@@ -10,6 +9,7 @@ import apiService from '../apiService';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { AuthContext } from '../Contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRoute } from '@react-navigation/native';
 
 const ComplaintForm = ({ navigation }) => {
   const [description, setDescription] = useState('');
@@ -29,12 +29,18 @@ const ComplaintForm = ({ navigation }) => {
   const [newColony, setNewColony] = useState('');
 
   const { userDetails, authToken } = useContext(AuthContext);
-  console.log('User Details:', userDetails);
+  const route = useRoute();
+  const { latitude, longitude } = route.params || {};
 
   useEffect(() => {
-    fetchLocation();
+    if (latitude && longitude) {
+      setLocation({ latitude, longitude });
+    } else if (userDetails.geoLocation) {
+      const [lat, lon] = userDetails.geoLocation.split(',');
+      setLocation({ latitude: parseFloat(lat), longitude: parseFloat(lon) });
+    }
     fetchIpAddress();
-  }, []);
+  }, [latitude, longitude, userDetails.geoLocation]);
 
   useEffect(() => {
     if (zoneID) {
@@ -48,22 +54,13 @@ const ComplaintForm = ({ navigation }) => {
     }
   }, [localityID]);
 
-  const fetchLocation = () => {
-    setError(null);
-    Geolocation.getCurrentPosition(
-      position => {
-        if (position.coords.accuracy <= 20) {
-          setLocation(position.coords);
-        } else {
-          setError('The location accuracy is insufficient. Please move to an open area.');
-        }
-      },
-      error => {
-        setError(error.message);
-      },
-      { enableHighAccuracy: true, timeout: 50000, maximumAge: 10000 }
-    );
-  };
+  useEffect(() => {
+    if (userDetails) {
+      setZoneID(userDetails.zoneID);
+      setLocalityID(userDetails.locality);
+      setColony(userDetails.colony);
+    }
+  }, [userDetails]);
 
   const fetchIpAddress = async () => {
     try {
@@ -74,6 +71,7 @@ const ComplaintForm = ({ navigation }) => {
       setIpAddress(data.ip);
     } catch (error) {
       console.error('Error fetching IP address:', error);
+      setIpAddress('Unable to fetch IP address');
     }
   };
 
@@ -200,207 +198,183 @@ const ComplaintForm = ({ navigation }) => {
     }
   };
 
-const handleSubmit = async () => {
-  console.log('Submit button clicked');
-  if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
-    Alert.alert('Error', 'Email must end with @gmail.com');
-    return;
-  }
-  if (!complaintType) {
-    Alert.alert('Error', 'Complaint Type cannot be null');
-    return;
-  }
-  if (!location) {
-    Alert.alert('Error', 'Location cannot be fetch. Please move to another place and try to fetch the location.');
-    return;
-  }
-  if (!zoneID) {
-    Alert.alert('Error', 'Zone cannot be null');
-    return;
-  }
-  if (!localityID) {
-    Alert.alert('Error', 'Locality Ward Sankhya cannot be null');
-    return;
-  }
-  if (!colony) {
-    Alert.alert('Error', 'Colony cannot be null');
-    return;
-  }
-  // if (!attachmentDoc) {
-  //   Alert.alert('Error', 'Document cannot be null. Please upload the document.');
-  //   return;
-  // }
-  // if (!userImage) {
-  //   Alert.alert('Error', 'Photo cannot be null. Please click the photo.');
-  //   return;
-  // }
+  const handleSubmit = async () => {
+    console.log('Submit button clicked');
+    if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
+      Alert.alert('Error', 'Email must end with @gmail.com');
+      return;
+    }
+    if (!complaintType) {
+      Alert.alert('Error', 'Complaint Type cannot be null');
+      return;
+    }
+    if (!location) {
+      Alert.alert('Error', 'Location cannot be fetch. Please move to another place and try to fetch the location.');
+      return;
+    }
+    if (!zoneID) {
+      Alert.alert('Error', 'Zone cannot be null');
+      return;
+    }
+    if (!localityID) {
+      Alert.alert('Error', 'Locality Ward Sankhya cannot be null');
+      return;
+    }
+    if (!colony) {
+      Alert.alert('Error', 'Colony cannot be null');
+      return;
+    }
 
-  const formattedAttachmentDoc = attachmentDoc ? `${userDetails.userID}_${userDetails.mobileNumber}_${attachmentDoc.documentName}` : null;
-  const formattedUserImage = userImage ? `${userDetails.userID}_${userDetails.mobileNumber}_${userImage.fileName}` : null;
-  console.log('Formatted Attachment Doc:', formattedAttachmentDoc);
-  const complaintData = {
-    description,
-    location: location ? `${location.latitude},${location.longitude}` : null,
-    createdBy: userDetails.username,
-    createdDate: new Date(),
-    mobileNumber: userDetails.mobileNumber,
-    complaintStatus,
-    ipAddress,
-    isAdmin: userDetails.isAdmin,
-    userID: userDetails.userID,
-    complaintType,
-    zoneID,
-    localityID,
-    colony,
+    const formattedAttachmentDoc = attachmentDoc ? `${userDetails.userID}_${userDetails.mobileNumber}_${attachmentDoc.documentName}` : null;
+    const formattedUserImage = userImage ? `${userDetails.userID}_${userDetails.mobileNumber}_${userImage.fileName}` : null;
+    console.log('Formatted Attachment Doc:', formattedAttachmentDoc);
+    const complaintData = {
+      description,
+      location: location ? `${location.latitude},${location.longitude}` : null,
+      createdBy: userDetails.username,
+      createdDate: new Date(),
+      mobileNumber: userDetails.mobileNumber,
+      complaintStatus,
+      ipAddress,
+      isAdmin: userDetails.isAdmin,
+      userID: userDetails.userID,
+      complaintType,
+      zoneID,
+      localityID,
+      colony,
+      locality: userDetails.localityName,
+      zone: userDetails.zoneName,
+    };
+
+    try {
+      console.log('Calling submitComplaint API...');
+      const complaintResponse = await apiService.submitComplaint(complaintData);
+      console.log('Complaint API response:', complaintResponse);
+
+      if (complaintResponse.success) {
+        const complaintID = complaintResponse.complaintID;
+        const complaintRegistrationNo = complaintResponse.complaintRegistrationNo;
+        const filesData = new FormData();
+        filesData.append('userID', userDetails.userID);
+        filesData.append('complaintID', complaintID);
+        filesData.append('createdBy', userDetails.username);
+        if (attachmentDoc) {
+          filesData.append('attachmentDoc', {
+            uri: attachmentDoc.documentUri,
+            type: attachmentDoc.documentType,
+            name: attachmentDoc.documentName,
+          });
+        }
+        if (userImage) {
+          filesData.append('userImage', {
+            uri: userImage.uri,
+            type: 'image/jpeg',
+            name: userImage.fileName,
+          });
+        }
+
+        console.log('Calling submitFiles API...');
+        const filesResponse = await apiService.submitFiles(filesData);
+        console.log('Files API response:', filesResponse);
+
+        if (filesResponse.success) {
+          Alert.alert('Success', `Complaint submitted successfully. Complaint Registration No: ${complaintRegistrationNo}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
+          navigation.replace('Home');
+        } else {
+          Alert.alert('Error', 'Failed to submit files');
+        }
+      } else {
+        Alert.alert('Error', 'Failed to submit complaint');
+      }
+    } catch (error) {
+      console.error('Error submitting complaint:', error);
+      Alert.alert('Error', `Failed to submit complaint: ${error.message}`);
+    }
   };
 
-  try {
-    console.log('Calling submitComplaint API...');
-    const complaintResponse = await apiService.submitComplaint(complaintData);
-    console.log('Complaint API response:', complaintResponse);
-
-    if (complaintResponse.success) {
-      const complaintID = complaintResponse.complaintID;
-      const complaintRegistrationNo = complaintResponse.complaintRegistrationNo;
-      const filesData = new FormData();
-      filesData.append('userID', userDetails.userID);
-      filesData.append('complaintID', complaintID);
-      filesData.append('createdBy', userDetails.username);
-      if (attachmentDoc) {
-        filesData.append('attachmentDoc', {
-          uri: attachmentDoc.documentUri,
-          type: attachmentDoc.documentType,
-          name: attachmentDoc.documentName,
-        });
-      }
-      if (userImage) {
-        filesData.append('userImage', {
-          uri: userImage.uri,
-          type: 'image/jpeg',
-          name: userImage.fileName,
-        });
-      }
-
-      console.log('Calling submitFiles API...');
-      const filesResponse = await apiService.submitFiles(filesData);
-      console.log('Files API response:', filesResponse);
-
-      if (filesResponse.success) {
-        Alert.alert('Success', `Complaint submitted successfully. Complaint Registration No: ${complaintRegistrationNo}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
-        navigation.replace('Home');
-      } else {
-        Alert.alert('Error', 'Failed to submit files');
-      }
-    } else {
-      Alert.alert('Error', 'Failed to submit complaint');
-    }
-  } catch (error) {
-    console.error('Error submitting complaint:', error);
-    Alert.alert('Error', `Failed to submit complaint: ${error.message}`);
-  }
-};
+  const isAdmin = userDetails.roles && userDetails.roles.includes('Admin');
 
   return (
     <ScrollView contentContainerStyle={AppStyles.scrollContainer}>
       <View style={AppStyles.container}>
         <Text style={AppStyles.title}>Submit Complaint {userDetails.userID}</Text>
+        <Text style={AppStyles.subtitle}>IP Address: {ipAddress}</Text>
         <Text style={AppStyles.label}>Complaint Type</Text>
-        <Picker
-          selectedValue={complaintType}
-          style={AppStyles.picker}
-          onValueChange={(itemValue) => setComplaintType(itemValue)}
-        >
-          <Picker.Item label="Select Complaint Type" value="" />
-          <Picker.Item label="Water" value="water" />
-          <Picker.Item label="Road" value="road" />
-          <Picker.Item label="Electricity" value="electricity" />
-          <Picker.Item label="Waste" value="waste" />
-          <Picker.Item label="Others" value="others" />
-        </Picker>
+        <View >
+          <Picker
+            selectedValue={complaintType}
+            style={AppStyles.picker}
+            onValueChange={(itemValue) => setComplaintType(itemValue)}
+          >
+            <Picker.Item label="Select Complaint Type" value="" />
+            <Picker.Item label="Water" value="water" />
+            <Picker.Item label="Road" value="road" />
+            <Picker.Item label="Electricity" value="electricity" />
+            <Picker.Item label="Waste" value="waste" />
+            <Picker.Item label="Others" value="others" />
+          </Picker>
+        </View>
         <Text style={AppStyles.label}>Description</Text>
         <TextInput
-          style={[AppStyles.input, { height: 100 }]}
+          style={[AppStyles.inputt, { height: 100 }]}
           placeholder="Description"
           value={description}
           onChangeText={setDescription}
           multiline
         />
-        <Text style={AppStyles.label}>User ID</Text>
-        <TextInput
-          style={AppStyles.input}
-          placeholder="User ID"
-          value={userDetails.userID.toString()}
-          editable={false}
-        />
-        <Text style={AppStyles.label}>Mobile No</Text>
-        <TextInput
-          style={AppStyles.input}
-          placeholder="Mobile No"
-          value={userDetails.mobileNumber}
-          editable={false}
-        />
-        <Text style={AppStyles.label}>Email ID</Text>
-        <TextInput
-          style={AppStyles.input}
-          placeholder="Email ID"
-          value={userDetails.emailID}
-          editable={false}
-        />
-        <Text style={AppStyles.label}>Location</Text>
-        <TextInput
-          style={AppStyles.input}
-          placeholder="Location"
-          value={location ? `${location.latitude}, ${location.longitude}` : ''}
-          editable={false}
-        />
-        <Button title="Refresh Location" onPress={fetchLocation} />
-        <Text style={AppStyles.label}>Zone</Text>
-        <Picker
-          selectedValue={zoneID}
-          onValueChange={itemValue => setZoneID(itemValue)}
-          style={AppStyles.picker}>
-          <Picker.Item label="Select Zone" value="" />
-          <Picker.Item label="Zone 1" value="1" />
-          <Picker.Item label="Zone 2" value="2" />
-          <Picker.Item label="Zone 3" value="3" />
-          <Picker.Item label="Zone 4" value="4" />
-        </Picker>
-        <Text style={AppStyles.label}>Locality Ward Sankhya</Text>
-        <Picker
-          selectedValue={localityID}
-          onValueChange={itemValue => setLocalityID(itemValue)}
-          style={AppStyles.picker}>
-          <Picker.Item label="Select Locality Ward" value="" />
-          {localities.map(loc => (
-            <Picker.Item
-              key={loc.LocalityID}
-              label={loc.Locality}
-              value={loc.LocalityID}
+        {isAdmin && (
+          <>
+            <Text style={AppStyles.label}>User ID</Text>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="User ID"
+              value={userDetails.userID.toString()}
+              editable={false}
             />
-          ))}
-        </Picker>
-        <Text style={AppStyles.label}>Colony</Text>
-        <Picker
-          selectedValue={colony}
-          onValueChange={itemValue => {
-            if (itemValue === 'addNewColony') {
-              setShowAddColony(true);
-            } else {
-              setShowAddColony(false);
-              setColony(itemValue);
-            }
-          }}
-          style={AppStyles.picker}>
-          <Picker.Item label="Select Colony" value="" />
-          {colonies.map(col => (
-            <Picker.Item
-              key={col.ColonyID}
-              label={col.Colony}
-              value={col.Colony}
+            <Text style={AppStyles.label}>Mobile No</Text>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="Mobile No"
+              value={userDetails.mobileNumber}
+              editable={false}
             />
-          ))}
-          <Picker.Item label="Add New Colony" value="addNewColony" />
-        </Picker>
+            <Text style={AppStyles.label}>Email ID</Text>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="Email ID"
+              value={userDetails.emailID}
+              editable={false}
+            />
+            <Text style={AppStyles.label}>Location</Text>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="Location"
+              value={location ? `${location.latitude}, ${location.longitude}` : ''}
+              editable={false}
+            />
+            <Text style={AppStyles.label}>Zone</Text>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="Zone"
+              value={userDetails.zoneName}
+              editable={false}
+            />
+            <Text style={AppStyles.label}>Locality Ward Sankhya</Text>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="Locality Ward Sankhya"
+              value={userDetails.localityName}
+              editable={false}
+            />
+            <Text style={AppStyles.label}>Colony</Text>
+            <TextInput
+              style={AppStyles.input}
+              placeholder="Colony"
+              value={userDetails.colonyName}
+              editable={false}
+            />
+          </>
+        )}
         {showAddColony && (
           <View>
             <TextInput

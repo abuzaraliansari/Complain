@@ -20,7 +20,16 @@ const LoginForm = ({ navigation }) => {
       console.log('Sending login request with data:', data); 
       const response = await apiService.loginc(data);
       console.log('Received response:', response);
+
       if (response.success) {
+        const isActive = response.user.isActive; // Use isActive as a boolean
+        console.log('isActive as boolean:', isActive);
+
+        if (!isActive) {
+          Alert.alert('Inactive User', 'Your account is inactive. Please activate it before logging in.');
+          return; // Prevent navigation if the user is inactive
+        }
+
         setAuthToken(response.token);
         const userDetails = {
           userID: response.user.userID,
@@ -28,7 +37,22 @@ const LoginForm = ({ navigation }) => {
           mobileNumber: response.user.mobileNumber,
           emailID: response.user.emailID,
           roles: response.user.roles,
-          isActive: response.user.isActive,
+          isActive, // Store isActive as a boolean
+          zoneID: response.user.zoneID,
+          locality: response.user.locality,
+          colony: response.user.colony,
+          galliNumber: response.user.galliNumber,
+          houseNumber: response.user.houseNumber,
+          geoLocation: response.user.geoLocation,
+          createdBy: response.user.createdBy,
+          createdDate: response.user.createdDate,
+          modifiedBy: response.user.modifiedBy,
+          modifiedDate: response.user.modifiedDate,
+          firstName: response.user.firstName,
+          adharNumber: response.user.adharNumber,
+          colonyName: response.user.colonyName,
+          localityName: response.user.localityName,
+          zoneName: response.user.zoneName,
         };
         setUserDetails(userDetails);
         console.log('User details id:', response.user.userID);
@@ -47,7 +71,6 @@ const LoginForm = ({ navigation }) => {
   return (
     <View style={AppStyles.loginContainer}>
       <Text style={AppStyles.loginTitle}>Login</Text>
-        {/* <Text style={AppStyles.Sublabel}>Password: First 4 digits of Mobile No + Last 4 digits of Aadhaar No</Text> */}
       <TextInput
         style={AppStyles.loginInput}
         placeholder="Username or Mobile Number"
