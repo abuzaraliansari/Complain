@@ -231,7 +231,7 @@ const ComplaintForm = ({ navigation }) => {
     const complaintData = {
       description,
       location: location ? `${location.latitude},${location.longitude}` : null,
-      createdBy: userDetails.username,
+      createdBy: `${userDetails.firstName} ${userDetails.username}`, // Updated createdBy
       createdDate: new Date(),
       mobileNumber: userDetails.mobileNumber,
       complaintStatus,
@@ -257,7 +257,7 @@ const ComplaintForm = ({ navigation }) => {
         const filesData = new FormData();
         filesData.append('userID', userDetails.userID);
         filesData.append('complaintID', complaintID);
-        filesData.append('createdBy', userDetails.username);
+        filesData.append('createdBy', `${userDetails.firstName} ${userDetails.username}`); // Updated createdBy
         if (attachmentDoc) {
           filesData.append('attachmentDoc', {
             uri: attachmentDoc.documentUri,
@@ -278,7 +278,7 @@ const ComplaintForm = ({ navigation }) => {
         console.log('Files API response:', filesResponse);
 
         if (filesResponse.success) {
-          Alert.alert('Success', `Complaint submitted successfully. Complaint Registration No: ${complaintRegistrationNo}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.username}`);
+          Alert.alert('Success', `Complaint submitted successfully. Complaint Registration No: ${complaintRegistrationNo}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.firstName}`);
           navigation.replace('Home');
         } else {
           Alert.alert('Error', 'Failed to submit files');
@@ -297,7 +297,7 @@ const ComplaintForm = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={AppStyles.scrollContainer}>
       <View style={AppStyles.container}>
-        <Text style={AppStyles.title}>Submit Complaint {userDetails.userID}</Text>
+        <Text style={AppStyles.title}>Submit Complaint</Text>
         <Text style={AppStyles.subtitle}>IP Address: {ipAddress}</Text>
         <Text style={AppStyles.label}>Complaint Type</Text>
         <View >
@@ -316,11 +316,14 @@ const ComplaintForm = ({ navigation }) => {
         </View>
         <Text style={AppStyles.label}>Description</Text>
         <TextInput
-          style={[AppStyles.inputt, { height: 100 }]}
+          style={AppStyles.inputt}
           placeholder="Description"
           value={description}
           onChangeText={setDescription}
           multiline
+          textAlignVertical="top"
+          numberOfLines={5} // Set to 5 lines as requested
+          scrollEnabled={true} // Enable scrolling within the TextInput
         />
         {isAdmin && (
           <>

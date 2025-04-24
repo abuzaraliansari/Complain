@@ -46,7 +46,8 @@ const HomeScreen = ({ navigation, route }) => {
 
   return (
     <View style={AppStyles.container}>
-      <Text style={AppStyles.title}>Welcome {userDetails.username}</Text>
+      <Text style={AppStyles.title}>Welcome {userDetails.firstName}</Text>
+      {/* <Text style={AppStyles.title}>Mobile No. {userDetails.username}</Text> */}
       {!userDetails.roles.includes('Admin') && (
         <TouchableOpacity style={AppStyles.button} onPress={handleComplain}>
           <Text style={AppStyles.buttonText}>Complain</Text>

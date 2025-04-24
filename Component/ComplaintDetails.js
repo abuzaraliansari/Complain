@@ -37,7 +37,7 @@ const ComplaintDetails = ({ navigation, route }) => {
     try {
       const requestBody = {
         mobileNumber: userDetails.roles.includes('Admin') ? filterMobileNumber : userDetails.mobileNumber,
-        createdBy: userDetails.username,
+        createdBy: `${userDetails.firstName} ${userDetails.username}`,
         isAdmin: userDetails.roles.includes('Admin'),
         startDate,
         endDate,

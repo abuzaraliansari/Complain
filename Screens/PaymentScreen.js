@@ -41,9 +41,9 @@ const PaymentScreen = ({ navigation }) => {
           <Text style={AppStyles.buttonText}>Show QR Code</Text>
         </TouchableOpacity>
         {showQRCode && (
-          <View style={AppStyles.qrCodeContainer}>
+          <View >
             <Image
-              style={AppStyles.qrCode}
+              
               source={require('./Qr.jpg')} // Updated path to the QR code image
             />
           </View>

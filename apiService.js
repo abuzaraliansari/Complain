@@ -157,7 +157,18 @@ const apiService = {
     } catch (error) {
       throw error;
     }
+  },
+
+submitReplyComment: async (data) => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/submitReplyComment`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error in submitReplyComment:', error.response ? error.response.data : error.message);
+    throw error;
   }
+},
+
 };
 
 export default apiService;

@@ -117,6 +117,9 @@ const ComplaintReplyDetails = ({ route, navigation }) => {
       <TouchableOpacity style={AppStyles.closeButton} onPress={handleCloseComplaint}>
         <Text style={AppStyles.closeButtonText}>Close Complaint</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={AppStyles.button} onPress={() => navigation.goBack()}>
+          <Text style={AppStyles.buttonText}>Back</Text>
+        </TouchableOpacity>
     </View>
   );
 };

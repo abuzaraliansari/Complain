@@ -40,7 +40,7 @@ const AppContent = () => {
               headerRight: () => (
                 userDetails?.username ? (
                   <Text style={{ marginRight: 10, fontSize: 16, color: '#000' }}>
-                    {userDetails.username}
+                    {userDetails.firstName} {userDetails.username}
                   </Text>
                 ) : null
               ), // Display username on the right side

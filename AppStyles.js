@@ -5,11 +5,13 @@ const AppStyles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#f0f4f7',
+    width: '100%',
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
   },
   title: {
     fontSize: 30,
@@ -23,6 +25,7 @@ const AppStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
     marginBottom: 10,
+    marginVertical: 10,
   },
   Sublabel: {
     fontSize: 18,
@@ -41,6 +44,7 @@ const AppStyles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 8,
     color: '#000',
+    marginBottom: 5,
   },
   input: {
     borderWidth: 1,
@@ -51,7 +55,12 @@ const AppStyles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 15,
     color: '#000',
+    margin: 10,
+    height: 50,
+    width: '100%',
+    alignSelf: 'stretch',
   },
+
   button: {
     backgroundColor: '#4CAF50',
     paddingVertical: 10,
@@ -131,16 +140,15 @@ const AppStyles = StyleSheet.create({
     color: '#000',
   },
   replyBy: {
-    fontWeight: 'bold', // Make the text bold
-    fontStyle: 'italic', // Make the text italic
-    color: '#888', // Light gray color
+    fontWeight: 'bold',
+    fontStyle: 'italic',
+    color: '#888',
   },
   replyDate: {
     fontSize: 12,
-    color: '#888', // Light gray color for the date
+    color: '#888',
     marginTop: 5,
   },
-
   attachmentContainer: {
     padding: 10,
     backgroundColor: '#f9f9f9',
@@ -265,15 +273,18 @@ const AppStyles = StyleSheet.create({
   datePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
     marginBottom: 20,
   },
   datePickerBox: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
     padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
     backgroundColor: '#fff',
+    alignItems: 'center',
     marginHorizontal: 5,
   },
   datePickerLabel: {
@@ -282,9 +293,9 @@ const AppStyles = StyleSheet.create({
     marginBottom: 5,
   },
   datePickerText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#333',
-    padding: 5,
+    padding: 12,
   },
   pickerContainer: {
     flexDirection: 'row',
@@ -308,13 +319,23 @@ const AppStyles = StyleSheet.create({
   picker: {
     height: 50,
     width: '100%',
+    alignSelf: 'stretch',
+    boarder: 1,
+    borderColor: '#ddd',
+    borderStyle: 'solid',
+    borderRadius: 8,
+    backgroundColor : '#fff',
+  },
+  picker1: {
+    height: 10,
   },
   complaintBox: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    backgroundColor: '#fff',
     padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginVertical: 5,
+    backgroundColor: '#f9f9f9',
     marginBottom: 10,
   },
   complaintRow: {
@@ -323,7 +344,13 @@ const AppStyles = StyleSheet.create({
     marginBottom: 5,
     flexWrap: 'wrap',
   },
-
+  complaintLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'left',
+    flex: 1,
+  },
   complaintValue: {
     fontSize: 16,
     color: '#000',
@@ -336,6 +363,7 @@ const AppStyles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'left',
     flex: 1,
+    textDecorationLine: 'underline',
   },
   documentContainer: {
     flexDirection: 'row',
@@ -388,90 +416,12 @@ const AppStyles = StyleSheet.create({
     backgroundColor: '#fff',
     marginHorizontal: 5,
   },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
-  picker1: {
-    height: 10,
-  },
-
-  label: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#333',
-  },
-  datePickerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  datePickerBox: {
-    flex: 1,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  datePickerText: {
-    fontSize: 16,
-    color: '#333',
-    padding: 12,
-  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 16,
-    backgroundColor: '#fff',
-    margin: 10,
-    color: '#000',
-    height: 50,
-    width: '82%',
-  },
-  header: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginVertical: 10,
-    color: '#000',
-  },
-  complaintBox: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    marginVertical: 5,
-    backgroundColor: '#f9f9f9',
-  },
-  complaintRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-
-  complaintLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'left',
-    flex: 1,
-  },
-  complaintValueLink: {
-    color: 'blue',
-    textDecorationLine: 'underline',
-  },
-
-  inputt: {
+inputt: {
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
@@ -479,9 +429,12 @@ const AppStyles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     marginBottom: 15,
-    color: '#000', // Changed to black
+    color: '#000',
+    width: '100%',
+    height: 100, // Fixed height (adjust as needed)
+    alignSelf: 'stretch',
+    textAlignVertical: 'top', // Ensure text starts from top
   },
-
   newFilterButton: {
     backgroundColor: 'skyblue',
     padding: 5,
@@ -494,6 +447,30 @@ const AppStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    width: '100%',
   },
 });
 
