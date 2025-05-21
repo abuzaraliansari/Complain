@@ -44,10 +44,13 @@ const HomeScreen = ({ navigation, route }) => {
     navigation.navigate('UserListScreen');
   };
 
+  const handleUserDetails = () => {
+    navigation.navigate('UserDetails');
+  };
+
   return (
     <View style={AppStyles.container}>
       <Text style={AppStyles.title}>Welcome {userDetails.firstName}</Text>
-      {/* <Text style={AppStyles.title}>Mobile No. {userDetails.username}</Text> */}
       {!userDetails.roles.includes('Admin') && (
         <TouchableOpacity style={AppStyles.button} onPress={handleComplain}>
           <Text style={AppStyles.buttonText}>Complain</Text>
@@ -66,7 +69,9 @@ const HomeScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </>
       )}
-
+      <TouchableOpacity style={AppStyles.button} onPress={handleUserDetails}>
+        <Text style={AppStyles.buttonText}>User Details</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={AppStyles.button} onPress={handleLogout}>
         <Text style={AppStyles.buttonText}>Logout</Text>
       </TouchableOpacity>

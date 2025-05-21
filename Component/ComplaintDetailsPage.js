@@ -13,8 +13,7 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
   const handleUpdateComplaintStatus = async (status) => {
     try {
       console.log(`${status === 'Closed' ? 'Closing' : 'Opening'} complaint:`, complaint.ComplaintID);
-  
-      // Prepare the data for the API
+
       const replyCommentData = {
         complaintID: complaint.ComplaintID,
         commentDescription: reason,
@@ -22,22 +21,20 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
         createdBy: `${userDetails.firstName} ${userDetails.username}`,
         isAdmin: userDetails.roles.includes('Admin') ? 1 : 0,
       };
-  
+
       console.log('Data being sent to submitReplyComment API:', replyCommentData);
-  
-      // Save the reason in the ReplyComments table
+
       await apiService.submitReplyComment(replyCommentData);
-  
-      // Update the complaint status
+
       const apiMethod = status === 'Closed' ? apiService.updateComplaintStatus : apiService.updateComplaintStatusOpen;
       await apiMethod({
         complaintno: complaint.ComplaintID,
         status,
         modifiedBy: `${userDetails.firstName} ${userDetails.username}`,
       });
-  
+
       Alert.alert('Success', `Complaint ${status === 'Closed' ? 'closed' : 'opened'} successfully`);
-      setModalVisible(false); // Close the modal
+      setModalVisible(false);
       navigation.replace('ComplaintStatus', {
         CreatedDate: complaint.CreatedDate,
         ComplaintID: complaint.ComplaintID,
@@ -67,8 +64,16 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
   };
 
   const handleOpenModal = () => {
-    setReason(''); // Clear the reason input
-    setModalVisible(true); // Open the modal
+    setReason('');
+    setModalVisible(true);
+  };
+
+  const handleReplyNavigation = () => {
+    if (complaint.ComplaintsStatus === 'Closed') {
+      Alert.alert('Error', 'The complaint is closed. Please open it before replying.');
+    } else {
+      navigation.navigate('ComplaintReply', { complaintno: complaint.ComplaintID });
+    }
   };
 
   const formatDate = (dateString) => {
@@ -118,26 +123,6 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
                 <Text style={AppStyles.displayCellHeader}>Location</Text>
                 <Text style={AppStyles.displayCell}>{complaint.Location || 'N/A'}</Text>
               </View>
-              <View style={AppStyles.displayRow}>
-                <Text style={AppStyles.displayCellHeader}>Zone ID</Text>
-                <Text style={AppStyles.displayCell}>{complaint.zone || 'N/A'}</Text>
-              </View>
-              <View style={AppStyles.displayRow}>
-                <Text style={AppStyles.displayCellHeader}>Locality ID</Text>
-                <Text style={AppStyles.displayCell}>{complaint.locality || 'N/A'}</Text>
-              </View>
-              <View style={AppStyles.displayRow}>
-                <Text style={AppStyles.displayCellHeader}>Colony</Text>
-                <Text style={AppStyles.displayCell}>{complaint.Colony || 'N/A'}</Text>
-              </View>
-              <View style={AppStyles.displayRow}>
-                <Text style={AppStyles.displayCellHeader}>IP Address</Text>
-                <Text style={AppStyles.displayCell}>{complaint.IPAddress || 'N/A'}</Text>
-              </View>
-              <View style={AppStyles.displayRow}>
-                <Text style={AppStyles.displayCellHeader}>Created By</Text>
-                <Text style={AppStyles.displayCell}>{complaint.CreatedBy || 'N/A'}</Text>
-              </View>
             </>
           )}
           <View style={AppStyles.displayRow}>
@@ -146,23 +131,26 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
           </View>
         </View>
         <View style={AppStyles.buttonContainer}>
-          <TouchableOpacity style={AppStyles.replyButton} onPress={() => navigation.navigate('ComplaintReply', { complaintno: complaint.ComplaintID })}>
-            <Text style={AppStyles.replyButtonText}>Reply</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={AppStyles.closeButton} onPress={handleOpenModal}>
-            <Text style={AppStyles.closeButtonText}>{complaint.ComplaintsStatus === 'Open' ? 'Close Complaint' : 'Open Complaint'}</Text>
-          </TouchableOpacity>
+          {complaint.ComplaintsStatus === 'Open' && (
+            <TouchableOpacity style={AppStyles.replyButton} onPress={handleReplyNavigation}>
+              <Text style={AppStyles.replyButtonText}>Reply</Text>
+            </TouchableOpacity>
+          )}
+          {complaint.ComplaintsStatus === 'Closed' && (
+            <TouchableOpacity style={AppStyles.closeButton} onPress={handleOpenModal}>
+              <Text style={AppStyles.closeButtonText}>Open Complaint</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <TouchableOpacity style={AppStyles.button} onPress={() => navigation.goBack()}>
           <Text style={AppStyles.buttonText}>Back</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Modal for entering reason */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={AppStyles.modalContainer}>
           <View style={AppStyles.modalContent}>
-            <Text style={AppStyles.modalHeader}>Reason for {complaint.ComplaintsStatus === 'Open' ? 'Closing' : 'Opening'} Complaint</Text>
+            <Text style={AppStyles.modalHeader}>Reason for Opening Complaint</Text>
             <TextInput
               style={AppStyles.input}
               placeholder="Enter reason here"
@@ -176,7 +164,7 @@ const ComplaintDetailsPage = ({ route, navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={AppStyles.replyButton}
-                onPress={() => confirmUpdateComplaintStatus(complaint.ComplaintsStatus === 'Open' ? 'Closed' : 'Open')}
+                onPress={() => confirmUpdateComplaintStatus('Open')}
               >
                 <Text style={AppStyles.replyButtonText}>Submit</Text>
               </TouchableOpacity>

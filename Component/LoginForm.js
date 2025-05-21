@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import axios from 'axios';
 import apiService from '../apiService';
 import { AuthContext } from '../Contexts/AuthContext';
 import AppStyles from '../AppStyles';
@@ -17,7 +18,7 @@ const LoginForm = ({ navigation }) => {
       } else {
         data.mobileNumber = identifier;
       }
-      console.log('Sending login request with data:', data); 
+      console.log('Sending login request with data:', data);
       const response = await apiService.loginc(data);
       console.log('Received response:', response);
 
@@ -55,10 +56,18 @@ const LoginForm = ({ navigation }) => {
           zoneName: response.user.zoneName,
         };
         setUserDetails(userDetails);
-        console.log('User details id:', response.user.userID);
-        console.log('Roles:', response.user.roles);
-        
-        navigation.replace('Home', { userDetails });
+
+        // Call the sendOtp API
+        const otpResponse = await axios.post('https://babralaapi-d3fpaphrckejgdd5.centralindia-01.azurewebsites.net:3000/auth/sendSms', {
+          mobileNumber: response.user.mobileNumber,
+        });
+
+        if (otpResponse.data.success) {
+          Alert.alert('Success', 'OTP sent successfully');
+          navigation.replace('SendSms', { userDetails }); // Navigate to SendSms with userDetails
+        } else {
+          Alert.alert('Error', otpResponse.data.message);
+        }
       } else {
         Alert.alert('Error', response.message);
       }

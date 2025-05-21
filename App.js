@@ -13,9 +13,11 @@ import ComplaintForm from './Component/ComplaintForm';
 import ComplaintDetails from './Component/ComplaintDetails';
 import ComplaintDetailsPage from './Component/ComplaintDetailsPage';
 import ComplaintReplyDetails from './Component/ComplaintReplyDetails';
+import tax from './Component/tax';
 import PaymentScreen from './Screens/PaymentScreen';
 import UserListScreen from './Screens/UserListScreen';
 import UserDetailsScreen from './Screens/UserDetailsScreen';
+import OtpVerificationScreen from './Component/sms';
 
 const Stack = createStackNavigator();
 
@@ -51,6 +53,7 @@ const AppContent = () => {
           <Stack.Screen name="Payment" component={PaymentScreen} />
           <Stack.Screen name="UserListScreen" component={UserListScreen} />
           <Stack.Screen name="UserDetailsScreen" component={UserDetailsScreen} />
+          <Stack.Screen name="SendSms" component={OtpVerificationScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </FormDataProvider>

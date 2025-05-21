@@ -69,10 +69,8 @@ const ComplaintReplyDetails = ({ route, navigation }) => {
         modifiedBy: userDetails.username,
       });
       Alert.alert('Success', 'Complaint closed successfully');
-      navigation.replace('ComplaintStatus', {
-        CreatedDate: complaint.CreatedDate,
-        ComplaintID: complaint.ComplaintID,
-        source: 'Home',
+      navigation.replace('Home', {
+       
       });
     } catch (error) {
       console.error('Error closing complaint:', error);

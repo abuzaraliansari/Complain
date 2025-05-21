@@ -16,7 +16,6 @@ const ComplaintForm = ({ navigation }) => {
   const [attachmentDoc, setAttachmentDoc] = useState(null);
   const [userImage, setUserImage] = useState(null);
   const [location, setLocation] = useState(null);
-  const [error, setError] = useState(null);
   const [complaintType, setComplaintType] = useState('');
   const [complaintStatus, setComplaintStatus] = useState('Open');
   const [ipAddress, setIpAddress] = useState('');
@@ -64,10 +63,8 @@ const ComplaintForm = ({ navigation }) => {
 
   const fetchIpAddress = async () => {
     try {
-      console.log('Fetching IP address...');
       const response = await fetch('https://api.ipify.org?format=json');
       const data = await response.json();
-      console.log('IP address fetched:', data.ip);
       setIpAddress(data.ip);
     } catch (error) {
       console.error('Error fetching IP address:', error);
@@ -77,9 +74,7 @@ const ComplaintForm = ({ navigation }) => {
 
   const fetchLocalities = async (zoneID) => {
     try {
-      console.log('Fetching localities for zoneID:', zoneID);
       const response = await apiService.getLocalities({ ZoneID: zoneID }, authToken);
-      console.log('Localities fetched:', response);
       setLocalities(response.locality[0]);
     } catch (error) {
       console.error('Error fetching localities:', error);
@@ -88,9 +83,7 @@ const ComplaintForm = ({ navigation }) => {
 
   const fetchColonies = async (localityID) => {
     try {
-      console.log('Fetching colonies for localityID:', localityID);
       const response = await apiService.getColonies({ LocalityID: localityID }, authToken);
-      console.log('Colonies fetched:', response);
       setColonies(response.locality[0]);
     } catch (error) {
       console.error('Error fetching colonies:', error);
@@ -137,20 +130,7 @@ const ComplaintForm = ({ navigation }) => {
           console.log('Camera error:', response.errorMessage);
         } else if (response.assets && response.assets.length > 0) {
           const { uri, fileName, fileSize } = response.assets[0];
-          const newFileName = fileName;
-          setUserImage({ uri, fileName: newFileName, fileSize });
-
-          // Save photo details locally
-          try {
-            await AsyncStorage.setItem(
-              'capturedPhotos',
-              JSON.stringify([{ uri, fileName: newFileName, fileSize }]),
-            );
-            Alert.alert('Success', 'Photo saved locally.');
-          } catch (error) {
-            console.error('Error saving photo to local storage:', error);
-            Alert.alert('Error', 'Failed to save photo locally.');
-          }
+          setUserImage({ uri, fileName, fileSize });
         }
       }
     );
@@ -174,64 +154,16 @@ const ComplaintForm = ({ navigation }) => {
     }
   };
 
-  const handleAddColony = async () => {
-    if (!newColony) {
-      Alert.alert('Error', 'Please enter the new colony name.');
-      return;
-    }
-
-    try {
-      console.log('Adding new colony:', newColony);
-      const response = await apiService.addColony({ LocalityID: localityID, Colony: newColony }, authToken);
-      console.log('Add colony response:', response);
-      if (response.success) {
-        Alert.alert('Success', 'New colony added successfully.');
-        setShowAddColony(false);
-        setNewColony('');
-        fetchColonies(localityID); // Refresh the colonies list
-      } else {
-        Alert.alert('Error', 'Failed to add new colony.');
-      }
-    } catch (error) {
-      console.error('Error adding new colony:', error);
-      Alert.alert('Error', 'Failed to add new colony.');
-    }
-  };
-
   const handleSubmit = async () => {
-    console.log('Submit button clicked');
-    if (userDetails.emailID && !userDetails.emailID.endsWith('@gmail.com')) {
-      Alert.alert('Error', 'Email must end with @gmail.com');
-      return;
-    }
     if (!complaintType) {
       Alert.alert('Error', 'Complaint Type cannot be null');
       return;
     }
-    if (!location) {
-      Alert.alert('Error', 'Location cannot be fetch. Please move to another place and try to fetch the location.');
-      return;
-    }
-    if (!zoneID) {
-      Alert.alert('Error', 'Zone cannot be null');
-      return;
-    }
-    if (!localityID) {
-      Alert.alert('Error', 'Locality Ward Sankhya cannot be null');
-      return;
-    }
-    if (!colony) {
-      Alert.alert('Error', 'Colony cannot be null');
-      return;
-    }
-
-    const formattedAttachmentDoc = attachmentDoc ? `${userDetails.userID}_${userDetails.mobileNumber}_${attachmentDoc.documentName}` : null;
-    const formattedUserImage = userImage ? `${userDetails.userID}_${userDetails.mobileNumber}_${userImage.fileName}` : null;
-    console.log('Formatted Attachment Doc:', formattedAttachmentDoc);
+  
     const complaintData = {
       description,
-      location: location ? `${location.latitude},${location.longitude}` : null,
-      createdBy: `${userDetails.firstName} ${userDetails.username}`, // Updated createdBy
+      location: `${location.latitude},${location.longitude}`,
+      createdBy: `${userDetails.firstName} ${userDetails.username}`,
       createdDate: new Date(),
       mobileNumber: userDetails.mobileNumber,
       complaintStatus,
@@ -242,22 +174,17 @@ const ComplaintForm = ({ navigation }) => {
       zoneID,
       localityID,
       colony,
-      locality: userDetails.localityName,
-      zone: userDetails.zoneName,
     };
-
+  
     try {
-      console.log('Calling submitComplaint API...');
       const complaintResponse = await apiService.submitComplaint(complaintData);
-      console.log('Complaint API response:', complaintResponse);
-
+  
       if (complaintResponse.success) {
         const complaintID = complaintResponse.complaintID;
-        const complaintRegistrationNo = complaintResponse.complaintRegistrationNo;
         const filesData = new FormData();
         filesData.append('userID', userDetails.userID);
         filesData.append('complaintID', complaintID);
-        filesData.append('createdBy', `${userDetails.firstName} ${userDetails.username}`); // Updated createdBy
+        filesData.append('createdBy', `${userDetails.firstName} ${userDetails.username}`);
         if (attachmentDoc) {
           filesData.append('attachmentDoc', {
             uri: attachmentDoc.documentUri,
@@ -272,27 +199,23 @@ const ComplaintForm = ({ navigation }) => {
             name: userImage.fileName,
           });
         }
-
-        console.log('Calling submitFiles API...');
+  
         const filesResponse = await apiService.submitFiles(filesData);
-        console.log('Files API response:', filesResponse);
-
+  
         if (filesResponse.success) {
-          Alert.alert('Success', `Complaint submitted successfully. Complaint Registration No: ${complaintRegistrationNo}, Mobile No: ${userDetails.mobileNumber}, Username: ${userDetails.firstName}`);
+          Alert.alert('Success', 'Complaint submitted successfully.');
           navigation.replace('Home');
         } else {
-          Alert.alert('Error', 'Failed to submit files');
+          Alert.alert('Error', 'Failed to submit files.');
         }
       } else {
-        Alert.alert('Error', 'Failed to submit complaint');
+        Alert.alert('Error', 'Failed to submit complaint.');
       }
     } catch (error) {
       console.error('Error submitting complaint:', error);
-      Alert.alert('Error', `Failed to submit complaint: ${error.message}`);
+      Alert.alert('Error', 'Failed to submit complaint.');
     }
   };
-
-  const isAdmin = userDetails.roles && userDetails.roles.includes('Admin');
 
   return (
     <ScrollView contentContainerStyle={AppStyles.scrollContainer}>
@@ -300,20 +223,18 @@ const ComplaintForm = ({ navigation }) => {
         <Text style={AppStyles.title}>Submit Complaint</Text>
         <Text style={AppStyles.subtitle}>IP Address: {ipAddress}</Text>
         <Text style={AppStyles.label}>Complaint Type</Text>
-        <View >
-          <Picker
-            selectedValue={complaintType}
-            style={AppStyles.picker}
-            onValueChange={(itemValue) => setComplaintType(itemValue)}
-          >
-            <Picker.Item label="Select Complaint Type" value="" />
-            <Picker.Item label="Water" value="water" />
-            <Picker.Item label="Road" value="road" />
-            <Picker.Item label="Electricity" value="electricity" />
-            <Picker.Item label="Waste" value="waste" />
-            <Picker.Item label="Others" value="others" />
-          </Picker>
-        </View>
+        <Picker
+          selectedValue={complaintType}
+          style={AppStyles.picker}
+          onValueChange={(itemValue) => setComplaintType(itemValue)}
+        >
+          <Picker.Item label="Select Complaint Type" value="" />
+          <Picker.Item label="Water" value="water" />
+          <Picker.Item label="Road" value="road" />
+          <Picker.Item label="Electricity" value="electricity" />
+          <Picker.Item label="Waste" value="waste" />
+          <Picker.Item label="Others" value="others" />
+        </Picker>
         <Text style={AppStyles.label}>Description</Text>
         <TextInput
           style={AppStyles.inputt}
@@ -322,77 +243,7 @@ const ComplaintForm = ({ navigation }) => {
           onChangeText={setDescription}
           multiline
           textAlignVertical="top"
-          numberOfLines={5} // Set to 5 lines as requested
-          scrollEnabled={true} // Enable scrolling within the TextInput
         />
-        {isAdmin && (
-          <>
-            <Text style={AppStyles.label}>User ID</Text>
-            <TextInput
-              style={AppStyles.input}
-              placeholder="User ID"
-              value={userDetails.userID.toString()}
-              editable={false}
-            />
-            <Text style={AppStyles.label}>Mobile No</Text>
-            <TextInput
-              style={AppStyles.input}
-              placeholder="Mobile No"
-              value={userDetails.mobileNumber}
-              editable={false}
-            />
-            <Text style={AppStyles.label}>Email ID</Text>
-            <TextInput
-              style={AppStyles.input}
-              placeholder="Email ID"
-              value={userDetails.emailID}
-              editable={false}
-            />
-            <Text style={AppStyles.label}>Location</Text>
-            <TextInput
-              style={AppStyles.input}
-              placeholder="Location"
-              value={location ? `${location.latitude}, ${location.longitude}` : ''}
-              editable={false}
-            />
-            <Text style={AppStyles.label}>Zone</Text>
-            <TextInput
-              style={AppStyles.input}
-              placeholder="Zone"
-              value={userDetails.zoneName}
-              editable={false}
-            />
-            <Text style={AppStyles.label}>Locality Ward Sankhya</Text>
-            <TextInput
-              style={AppStyles.input}
-              placeholder="Locality Ward Sankhya"
-              value={userDetails.localityName}
-              editable={false}
-            />
-            <Text style={AppStyles.label}>Colony</Text>
-            <TextInput
-              style={AppStyles.input}
-              placeholder="Colony"
-              value={userDetails.colonyName}
-              editable={false}
-            />
-          </>
-        )}
-        {showAddColony && (
-          <View>
-            <TextInput
-              style={AppStyles.input}
-              placeholder="Enter New Colony Name"
-              value={newColony}
-              onChangeText={setNewColony}
-            />
-            <TouchableOpacity
-              style={[AppStyles.button, AppStyles.probutton]}
-              onPress={handleAddColony}>
-              <Text style={AppStyles.buttonText}>Add Colony</Text>
-            </TouchableOpacity>
-          </View>
-        )}
         <Text style={AppStyles.label}>Document</Text>
         <TouchableOpacity style={AppStyles.button} onPress={handleDocumentPick}>
           <Text style={AppStyles.buttonText}>
