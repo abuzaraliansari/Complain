@@ -15,6 +15,7 @@ import ComplaintDetailsPage from './Component/ComplaintDetailsPage';
 import ComplaintReplyDetails from './Component/ComplaintReplyDetails';
 import tax from './Component/tax';
 import PaymentScreen from './Screens/PaymentScreen';
+import TaxSummaryScreen from './Screens/TaxSummaryScreen';
 import UserListScreen from './Screens/UserListScreen';
 import UserDetailsScreen from './Screens/UserDetailsScreen';
 import OtpVerificationScreen from './Component/sms';
@@ -51,6 +52,7 @@ const AppContent = () => {
           <Stack.Screen name="ComplaintDetails" component={ComplaintDetailsPage} />
           <Stack.Screen name="ComplaintReply" component={ComplaintReplyDetails} />
           <Stack.Screen name="Payment" component={PaymentScreen} />
+          <Stack.Screen name="TaxSummary" component={TaxSummaryScreen} />
           <Stack.Screen name="UserListScreen" component={UserListScreen} />
           <Stack.Screen name="UserDetailsScreen" component={UserDetailsScreen} />
           <Stack.Screen name="SendSms" component={OtpVerificationScreen} />

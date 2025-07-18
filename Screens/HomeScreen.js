@@ -69,9 +69,9 @@ const HomeScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </>
       )}
-      <TouchableOpacity style={AppStyles.button} onPress={handleUserDetails}>
+      {/* <TouchableOpacity style={AppStyles.button} onPress={handleUserDetails}>
         <Text style={AppStyles.buttonText}>User Details</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity style={AppStyles.button} onPress={handleLogout}>
         <Text style={AppStyles.buttonText}>Logout</Text>
       </TouchableOpacity>
