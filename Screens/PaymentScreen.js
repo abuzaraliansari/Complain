@@ -1,14 +1,12 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Image } from 'react-native';
 import AppStyles from '../AppStyles';
 import axios from 'axios';
 import { AuthContext } from '../Contexts/AuthContext';
 const API_URL = process.env.API_URL || 'http://192.168.29.243:3000';
 
 const PaymentScreen = ({ navigation }) => {
-  // Get user details from AuthContext
   const { userDetails } = useContext(AuthContext);
-  // Normalize user data to always have firstName, lastName, mobileNumber, etc.
   const userData = {
     ...userDetails,
     firstName: userDetails.firstName || userDetails.FirstName || '',
@@ -30,11 +28,15 @@ const PaymentScreen = ({ navigation }) => {
   const [taxSurveyData, setTaxSurveyData] = useState(null);
   const [taxError, setTaxError] = useState('');
   const [taxCalculated, setTaxCalculated] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState(null); // 'card' or 'upi'
+  const [paymentMethod, setPaymentMethod] = useState(null);
   const [cardNumber, setCardNumber] = useState('');
+  const [cardholderName, setCardholderName] = useState('');
   const [cvv, setCvv] = useState('');
+  const [expirationDate, setExpirationDate] = useState('');
+  const [pin, setPin] = useState('');
   const [upiId, setUpiId] = useState('');
   const [paymentError, setPaymentError] = useState('');
+  const [showPinPrompt, setShowPinPrompt] = useState(false);
 
   const handleCalculateTax = async () => {
     setTaxLoading(true);
@@ -45,10 +47,8 @@ const PaymentScreen = ({ navigation }) => {
         { userId: userID },
         { headers: { 'Content-Type': 'application/json' } }
       );
-      console.log('Tax API response:', response.data); // Debug log
       if (response.data && response.data.success && Array.isArray(response.data.taxSurveyData) && response.data.taxSurveyData.length > 0) {
         setTaxSurveyData(response.data.taxSurveyData);
-        const totalTax = response.data.taxSurveyData.reduce((sum, row) => sum + (row.TaxAmount || 0), 0);
         const pendingTax = response.data.taxSurveyData.reduce((sum, row) => sum + ((row.TaxAmount || 0) - (row.TaxPaidAmount || 0)), 0);
         const discount = response.data.taxSurveyData.reduce((sum, row) => sum + (row.Discount || 0), 0);
         const lateFee = response.data.taxSurveyData.reduce((sum, row) => sum + (row.LateTaxFee || row.LateFee || 0), 0);
@@ -56,9 +56,6 @@ const PaymentScreen = ({ navigation }) => {
         setTaxAmount(pendingTax);
         setTotalAmount(total);
         setTaxCalculated(true);
-        // Do not navigate yet, wait for Pay Tax button
-      } else if (response.data && response.data.success && Array.isArray(response.data.taxSurveyData) && response.data.taxSurveyData.length === 0) {
-        setTaxError('No tax data found for your account.');
       } else {
         setTaxError('No tax data found.');
       }
@@ -72,8 +69,16 @@ const PaymentScreen = ({ navigation }) => {
   const handlePay = () => {
     setPaymentError('');
     if (paymentMethod === 'card') {
-      if (!cardNumber || !cvv) {
-        setPaymentError('Please enter card number and CVV');
+      if (!cardNumber || !cvv || !cardholderName || !expirationDate) {
+        setPaymentError('Please fill all card details');
+        return;
+      }
+      if (!showPinPrompt) {
+        setShowPinPrompt(true);
+        return;
+      }
+      if (!pin) {
+        setPaymentError('Please enter card PIN');
         return;
       }
     } else if (paymentMethod === 'upi') {
@@ -81,16 +86,26 @@ const PaymentScreen = ({ navigation }) => {
         setPaymentError('Please enter UPI ID');
         return;
       }
+    } else if (paymentMethod === 'qr') {
+      if (!showPinPrompt) {
+        setShowPinPrompt(true);
+        return;
+      }
+      if (!pin) {
+        setPaymentError('Please enter UPI PIN');
+        return;
+      }
     } else {
       setPaymentError('Please select a payment method');
       return;
     }
-    // Move to next page with all data, including payment details
+
     const totalTax = taxSurveyData.reduce((sum, row) => sum + (row.TaxAmount || 0), 0);
     const pendingTax = taxSurveyData.reduce((sum, row) => sum + ((row.TaxAmount || 0) - (row.TaxPaidAmount || 0)), 0);
     const discount = taxSurveyData.reduce((sum, row) => sum + (row.Discount || 0), 0);
     const lateFee = taxSurveyData.reduce((sum, row) => sum + (row.LateTaxFee || row.LateFee || 0), 0);
     const total = pendingTax + lateFee - discount;
+
     navigation.navigate('TaxSummary', {
       userData,
       taxSurveyData,
@@ -102,6 +117,9 @@ const PaymentScreen = ({ navigation }) => {
       paymentMethod,
       cardNumber: paymentMethod === 'card' ? cardNumber : undefined,
       cvv: paymentMethod === 'card' ? cvv : undefined,
+      expirationDate: paymentMethod === 'card' ? expirationDate : undefined,
+      cardholderName: paymentMethod === 'card' ? cardholderName : undefined,
+      pin: paymentMethod === 'card' || paymentMethod === 'qr' ? pin : undefined,
       upiId: paymentMethod === 'upi' ? upiId : undefined,
     });
   };
@@ -109,78 +127,168 @@ const PaymentScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={AppStyles.scrollContainer}>
       <View style={AppStyles.container}>
-        {/* User Info Section */}
         <View style={{ marginBottom: 20, alignItems: 'flex-start' }}>
           <Text style={AppStyles.label}>Username: <Text style={{ fontWeight: 'bold' }}>{username || '-'}</Text></Text>
           <Text style={AppStyles.label}>Full Name: <Text style={{ fontWeight: 'bold' }}>{firstName || ''} {lastName || ''}</Text></Text>
           <Text style={AppStyles.label}>Mobile No: <Text style={{ fontWeight: 'bold' }}>{mobileNumber || '-'}</Text></Text>
         </View>
 
-        {/* Calculate/Pay Tax Button and Payment Method Selection */}
         {!taxCalculated ? (
           <TouchableOpacity style={AppStyles.button} onPress={handleCalculateTax} disabled={taxLoading}>
             <Text style={AppStyles.buttonText}>{taxLoading ? 'Calculating...' : 'Calculate Tax'}</Text>
           </TouchableOpacity>
         ) : (
           <>
-            {/* Payment Method Selection */}
-            <Text style={{ fontWeight: 'bold', marginTop: 16 }}>Select Payment Method:</Text>
-            <View style={{ flexDirection: 'row', marginVertical: 8 }}>
-              <TouchableOpacity
-                style={[AppStyles.button, { backgroundColor: paymentMethod === 'card' ? '#4caf50' : '#2196f3', marginRight: 8 }]}
-                onPress={() => setPaymentMethod('card')}
-              >
-                <Text style={AppStyles.buttonText}>Pay by Card</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[AppStyles.button, { backgroundColor: paymentMethod === 'upi' ? '#4caf50' : '#2196f3' }]}
-                onPress={() => setPaymentMethod('upi')}
-              >
-                <Text style={AppStyles.buttonText}>Pay by UPI</Text>
-              </TouchableOpacity>
+            <Text style={{ fontWeight: 'bold', marginTop: 16, fontSize: 18, color: '#333', alignSelf: 'center' }}>Select Payment Method:</Text>
+            <View style={{ flexDirection: 'row', marginVertical: 12, justifyContent: 'center' }}>
+              {['card', 'upi', 'qr'].map(method => (
+                <TouchableOpacity
+                  key={method}
+                  style={[AppStyles.button, {
+                    backgroundColor: paymentMethod === method ? '#4caf50' : '#fff',
+                    borderColor: '#4caf50', borderWidth: 2,
+                    marginRight: 8, minWidth: 100,
+                    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.2, shadowRadius: 2, elevation: 2,
+                  }]}
+                  onPress={() => { setPaymentMethod(method); setShowPinPrompt(false); setPaymentError(''); }}>
+                  <Text style={{ color: paymentMethod === method ? '#fff' : '#4caf50', fontWeight: 'bold', textAlign: 'center' }}>
+                    Pay by {method.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
-            {/* Payment Details Inputs */}
+
             {paymentMethod === 'card' && (
-              <View style={{ marginBottom: 8 }}>
+              <View style={{ borderWidth: 1, borderColor: paymentError ? 'red' : '#ccc', borderRadius: 8, padding: 12, marginBottom: 8, backgroundColor: '#fff' }}>
                 <TextInput
-                  style={AppStyles.loginInput}
+                  style={{ fontSize: 18, borderBottomWidth: 1, borderBottomColor: '#ccc', padding: 8, marginBottom: 4 }}
                   placeholder="Card Number"
+                  keyboardType="numeric"
+                  maxLength={19}
                   value={cardNumber}
-                  onChangeText={setCardNumber}
-                  keyboardType="numeric"
-                  maxLength={16}
+                  onChangeText={(text) => setCardNumber(text.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim())}
                 />
+                <View style={{ flexDirection: 'row' }}>
+                  <TextInput
+                    style={{ flex: 1, fontSize: 18, borderBottomWidth: 1, borderBottomColor: '#ccc', padding: 8 }}
+                    placeholder="MM / YY"
+                    value={expirationDate}
+                    onChangeText={setExpirationDate}
+                    maxLength={5}
+                  />
+                  <TextInput
+                    style={{ flex: 1, fontSize: 18, borderBottomWidth: 1, borderBottomColor: '#ccc', padding: 8, marginLeft: 10 }}
+                    placeholder="CVV"
+                    value={cvv}
+                    onChangeText={setCvv}
+                    keyboardType="numeric"
+                    maxLength={4}
+                    secureTextEntry
+                  />
+                </View>
                 <TextInput
-                  style={AppStyles.loginInput}
-                  placeholder="CVV"
-                  value={cvv}
-                  onChangeText={setCvv}
-                  keyboardType="numeric"
-                  maxLength={4}
-                  secureTextEntry
+                  style={{ fontSize: 18, borderBottomWidth: 1, borderBottomColor: '#ccc', padding: 8, marginTop: 10 }}
+                  placeholder="Enter name on card"
+                  value={cardholderName}
+                  onChangeText={setCardholderName}
                 />
+                {showPinPrompt && (
+                  <TextInput
+                    style={{ fontSize: 18, borderBottomWidth: 1, borderBottomColor: '#ccc', padding: 8, marginTop: 10 }}
+                    placeholder="Enter PIN"
+                    value={pin}
+                    onChangeText={setPin}
+                    keyboardType="numeric"
+                    secureTextEntry
+                    maxLength={6}
+                  />
+                )}
               </View>
             )}
+
             {paymentMethod === 'upi' && (
-              <View style={{ marginBottom: 8 }}>
+              <View style={{
+                backgroundColor: '#F8F8F8',
+                borderRadius: 12,
+                paddingHorizontal: 15,
+                paddingVertical: 12,
+                borderWidth: 1,
+                borderColor: '#E0E0E0',
+                marginBottom: 20,
+              }}>
                 <TextInput
-                  style={AppStyles.loginInput}
-                  placeholder="UPI ID"
+                  style={{ fontSize: 16, color: '#000' }}
+                  placeholder="example@okhdfcbank"
+                  placeholderTextColor="#A0A0A0"
                   value={upiId}
                   onChangeText={setUpiId}
                   autoCapitalize="none"
                 />
               </View>
             )}
-            {paymentError ? <Text style={{ color: 'red', marginBottom: 8 }}>{paymentError}</Text> : null}
-            <TouchableOpacity style={AppStyles.button} onPress={handlePay}>
+
+            {paymentMethod === 'qr' && (
+              <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                <Text style={{ fontWeight: 'bold', marginBottom: 8, color: '#333' }}>Scan QR to Pay</Text>
+                <TouchableOpacity onPress={() => {
+                  if (!showPinPrompt) {
+                    setShowPinPrompt(true);
+                  } else if (pin.length < 4) {
+                    setPaymentError('Please enter a valid UPI PIN');
+                  } else {
+                    handlePay();
+                  }
+                }}>
+                  <Image source={require('../Screens/Qr.jpg')} style={{ width: 180, height: 180, borderRadius: 12, borderWidth: 2, borderColor: '#4caf50', marginBottom: 8 }} />
+                  <Text style={{ color: '#4caf50', fontWeight: 'bold', textAlign: 'center' }}>
+                    {showPinPrompt ? 'Enter PIN & Tap to Pay' : 'Tap QR to Continue'}
+                  </Text>
+                </TouchableOpacity>
+                {showPinPrompt && (
+                  <TextInput
+                    style={{
+                      fontSize: 16,
+                      backgroundColor: '#F0F0F0',
+                      borderRadius: 10,
+                      padding: 10,
+                      width: 200,
+                      marginTop: 10,
+                      borderWidth: 1,
+                      borderColor: '#CCC',
+                    }}
+                    placeholder="Enter UPI PIN"
+                    placeholderTextColor="#999"
+                    keyboardType="numeric"
+                    secureTextEntry
+                    value={pin}
+                    onChangeText={setPin}
+                    maxLength={6}
+                  />
+                )}
+              </View>
+            )}
+
+            {paymentError ? <Text style={{ color: 'red', marginBottom: 8 }}>⚠️ {paymentError}</Text> : null}
+
+            <TouchableOpacity
+              style={[AppStyles.button, { opacity: paymentMethod === 'qr' && showPinPrompt && pin.length < 4 ? 0.6 : 1 }]}
+              onPress={() => {
+                if (paymentMethod === 'qr' && (!showPinPrompt || pin.length < 4)) {
+                  setShowPinPrompt(true);
+                  setPaymentError('Please enter your UPI PIN');
+                } else {
+                  handlePay();
+                }
+              }}>
               <Text style={AppStyles.buttonText}>Pay Now</Text>
             </TouchableOpacity>
           </>
         )}
+
         {taxError ? <Text style={{ color: 'red', marginVertical: 8 }}>{taxError}</Text> : null}
         {taxAmount !== null && (
-          <View style={{marginVertical: 8}}>
+          <View style={{ marginVertical: 8 }}>
             <Text style={{ fontWeight: 'bold' }}>Pending Tax Amount: ₹{taxAmount.toFixed(2)}</Text>
             {totalAmount !== null && (
               <Text style={{ fontWeight: 'bold' }}>Total Amount: ₹{totalAmount.toFixed(2)}</Text>
